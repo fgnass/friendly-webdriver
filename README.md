@@ -1,4 +1,4 @@
-# ![Selene](logo.svg)
+# ![Selene](logo.png)
 
 ### [EXPERIMENTAL]
 
