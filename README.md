@@ -64,8 +64,6 @@ __Options:__
 * `envOverrrides` Whether to allow the configuration to be overwritten by environment variables. Defaults to `true`.
 * `browser` The desired target browser. You may also specify a browser by setting the `SELENIUM_BROWSER` environment variable to `browser[:[version][:platform]]`.
 
-chrome, firefox, edge, ie, opera, safari
-
 ## Se
 
 `Se` extends Selenium's [WebDriver](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html) class and adds the following methods on top:
@@ -103,9 +101,9 @@ chrome, firefox, edge, ie, opera, safari
 `fill(text)`
 `fill([attribute], values)`
 
-## Mocha
+## Test runners
 
-Selene does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses mocha and Node's built-in assertions.
+Selene does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses [Mocha](https://mochajs.org/) and Node's built-in assertions.
 
 ```js
 var assert = require('assert');
