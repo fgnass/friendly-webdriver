@@ -3,8 +3,8 @@ var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
 var remote = require('selenium-webdriver/remote');
 
-var until = require('./until')(webdriver);
-var element = require('./element')(webdriver);
+var until = require('./until');
+var element = require('./element');
 
 var fn = {
 
@@ -16,14 +16,12 @@ var fn = {
     return this.findElements({ css: sel }).map(element);
   },
 
-  click: function (sel) {
-    var el = this.find(sel);
-    el.click();
-    return el;
-  },
-
   exists: function (sel) {
     return this.isElementPresent({ css: sel });
+  },
+
+  click: function (selector) {
+    return this.find(selector).click();
   },
 
   wait: function (cond, timeout, message) {
@@ -108,6 +106,7 @@ function build(opts) {
   var b = new webdriver.Builder();
   if (opts.capabilities) b.withCapabilities(opts.capabilities);
 
+  if ('envOverrrides' in opts && !opts.envOverrrides) b.disableEnvironmentOverrides();
   if ('alerts' in opts) b.setAlertBehavior(opts.alerts);
   if ('nativeEvents' in opts) b.setEnableNativeEvents(opts.nativeEvents);
   if ('proxy' in opts) b.setProxy(opts.proxy);
@@ -118,11 +117,11 @@ function build(opts) {
   if (opts.scrollTo == 'bottom') b.setScrollBehavior(1);
   if (opts.chrome) b.setChromeOptions(opts.chrome);
   if (opts.firefox) b.setFirefoxOptions(opts.firefox);
+  if (opts.edge) b.setEdgeOptions(opts.edge);
   if (opts.ie) b.setIeOptions(opts.ie);
   if (opts.opera) b.setOperaOptions(opts.opera);
   if (opts.safari) b.setSafariOptions(opts.safari);
-  if (opts.envOverrrides === false) b.disableEnvironmentOverrides();
-  //console.log(b)
+
   var browser = opts.browser || 'firefox';
   b.forBrowser.apply(b, browser.split(':'));
 

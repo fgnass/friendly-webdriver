@@ -37,25 +37,58 @@ var se = selene({
 
 # API
 
+The top-level function exported by selene is a facade to Selenium's [Builder](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html) class and can be used to create `Se` instances (selene's enhenced version of the [WebDriver](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html) class.
+
+`selene(opts)` Build a new `Se` instance.
+
+__Options:__
+
+* `alerts` The default action to take with an unexpected alert before returning an error.
+  Can be either  `"accept"`, `"dismiss"` or `"ignore"`. Defaults to `"dismiss"`.
+* `nativeEvents` Whether native events should be used.
+* `proxyURL` URL of the proxy to use for the WebDriver's HTTP connections.
+* `remoteURL` URL of a remote WebDriver server to use. As an alternative to this method, you may also set the `SELENIUM_REMOTE_URL` environment variable.
+* `scrollTo` How elements should be scrolled into view for interaction. Can either be `"top"` or  `"bottom"`.
+* `logging` Set the log level of different log types:
+  ```json
+  {
+    "browser": "severe",
+    "driver": "debug"
+  }
+  ```
+  Valid types are:  `browser`, `client`, `driver`, `performance` or `server`.
+  Valid levels are: `off`, `severe`, `warning`, `info`, `fine`, `finer`, `finest`, `debug` or `all`.
+
+
+* `capabilities` The desired capabilities when requesting a new session.
+* `envOverrrides` Whether to allow the configuration to be overwritten by environment variables. Defaults to `true`.
+* `browser` The desired target browser. You may also specify a browser by setting the `SELENIUM_BROWSER` environment variable to `browser[:[version][:platform]]`.
+
+chrome, firefox, edge, ie, opera, safari
+
 ## Se
 
-`selene()`
+`Se` extends Selenium's [WebDriver](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html) class and adds the following methods on top:
 
-`se.find(selector)`
+`find(selector)`
 
-`se.findAll(selector)`
+`findAll(selector)`
 
-`se.click(selector)`
+`exists(selector)`
 
-`se.exists(selector)`
+`click(selector)`
 
-`se.wait(condition, timeout, message)`
+`wait(condition, timeout, message)`
 
 `goto(url)`
 
 `fill([attribute], values)`
 
+`getLogMessages()`
+
 ## SeElement
+
+`SeElement` extends Selenium's [WebElement](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html) and adds the following methods:
 
 `attr(name)`
 
