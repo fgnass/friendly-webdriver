@@ -1,11 +1,16 @@
 {
   "name": "selene",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A friendly selenium-webdriver API",
-  "main": "index.js",
-  "keywords": [],
+  "repository": "LiquidLabsGmbH/selene",
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
   "license": "MIT",
+  "keywords": [
+    "selenium",
+    "webdriver",
+    "e2e"
+  ],
+  "main": "index.js",
   "dependencies": {
     "debug": "^2.2.0",
     "object-assign": "^4.0.1",
