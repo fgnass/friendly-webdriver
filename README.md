@@ -1,16 +1,10 @@
-# ![Selene](logo.png)
+# ![Selene](https://raw.githubusercontent.com/LiquidLabsGmbH/selene/master/logo.png)
 
-### [EXPERIMENTAL]
+The aim of Selene is to provide a WebDriver API with a strong focus on developer experience (DX).
 
-The aim of Selene is to provide a WebDriver API with a strong focus on developer experience.
-
-Unlike [various](http://nightwatchjs.org/) [other](http://webdriver.io/) [approaches](https://www.npmjs.com/package/wd) it uses the [official](https://www.npmjs.com/package/selenium-webdriver) Selenium WebDriver JavaScript bindings, which has the big advantage that you __don't need__ a Selenium server in order to control browsers on your local machine.
+Unlike [other](http://nightwatchjs.org/) [webdriver](http://webdriver.io/) [libraries](https://www.npmjs.com/package/wd), Selene uses the [official](https://www.npmjs.com/package/selenium-webdriver) Selenium JavaScript bindings. This has the big advantage that you __don't need a Selenium server__ in order to control browsers on your local machine. This does not only make things much easier to set up but also saves
 
 While being very powerful, the official API sometimes feels a little alien to JavaScript developers as it is very closely modeled after its Java ancestor.
-
-All objects created by Selene inherit from their official counterparts, hence checks like `obj instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
-
-This means that you can also use tools like [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver) which mixes very well Selene.
 
 # Usage
 
@@ -45,10 +39,15 @@ __Options:__
 
 * `alerts` The default action to take with an unexpected alert before returning an error.
   Can be either  `"accept"`, `"dismiss"` or `"ignore"`. Defaults to `"dismiss"`.
+
 * `nativeEvents` Whether native events should be used.
+
 * `proxyURL` URL of the proxy to use for the WebDriver's HTTP connections.
+
 * `remoteURL` URL of a remote WebDriver server to use. As an alternative to this method, you may also set the `SELENIUM_REMOTE_URL` environment variable.
+
 * `scrollTo` How elements should be scrolled into view for interaction. Can either be `"top"` or  `"bottom"`.
+
 * `logging` Set the log level of different log types:
   ```json
   {
@@ -61,28 +60,30 @@ __Options:__
 
 
 * `capabilities` The desired capabilities when requesting a new session.
+
 * `envOverrrides` Whether to allow the configuration to be overwritten by environment variables. Defaults to `true`.
-* `browser` The desired target browser. You may also specify a browser by setting the `SELENIUM_BROWSER` environment variable to `browser[:[version][:platform]]`.
+
+* `browser` The desired target browser. You may also specify a browser by setting the `SELENIUM_BROWSER` __environment variable__ to `browser[:[version][:platform]]`.
 
 ## Se
 
 `Se` extends Selenium's [WebDriver](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html) class and adds the following methods on top:
 
-`find(selector)`
+* `find(locator)` Alias for `findElement` that also accepts strings as locator which are interpreted as CSS selectors.
 
-`findAll(selector)`
+* `findAll(locator)` Alias for `findElements` that also accepts strings as locator which are interpreted as CSS selectors.
 
-`exists(selector)`
+* `exists(locator)` Alias for `isElementPresent` that also accepts strings as locator which are interpreted as CSS selectors.
 
-`click(selector)`
+* `click(locator)` Shorthand for `se.find(locator).click()`
 
-`wait(condition, timeout, message)`
+* `wait(condition, timeout, message)`
 
-`goto(url)`
+* `goto(url)`
 
-`fill([attribute], values)`
+* `fill([attribute], values)`
 
-`getLogMessages()`
+* `getLogMessages()`
 
 ## SeElement
 
@@ -127,3 +128,8 @@ describe('Google', function() { // <-- no `done` callback here
 ```
 
 Note that there is no `done` callback in the example above. Instead it uses mocha's built-in support for promises by returning the `se` object, which itself is a `thenable`.
+
+## Use it as drop-in replacement
+All objects created by Selene inherit from their official counterparts, hence checks like `obj instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
+
+This means that you can also use tools like [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver) which mixes very well Selene.
