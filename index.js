@@ -8,16 +8,33 @@ var element = require('./element');
 
 var fn = {
 
-  find: function (sel) {
-    return element(this.findElement({ css: sel }));
+  find: function (locator) {
+    if (typeof locator == 'string') {
+      locator = { css: locator };
+    }
+    return this.findElement(locator);
   },
 
-  findAll: function (sel) {
-    return this.findElements({ css: sel }).map(element);
+  findElement: function (locator) {
+    return element(this.driver.findElement(locator));
   },
 
-  exists: function (sel) {
-    return this.isElementPresent({ css: sel });
+  findAll: function (locator) {
+    if (typeof locator == 'string') {
+      locator = { css: locator };
+    }
+    return this.findElements({ css: locator });
+  },
+
+  findElements: function (locator) {
+    return this.driver.findElements({ css: locator }).map(element);
+  },
+
+  exists: function (locator) {
+    if (typeof locator == 'string') {
+      locator = { css: locator };
+    }
+    return this.isElementPresent(locator);
   },
 
   click: function (selector) {
