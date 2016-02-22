@@ -7,7 +7,7 @@ describe('Selene', function () {
 
   this.timeout(60000);
 
-  it.skip('should go to the selene npm page', function () {
+  it('should go to the selene npm page', function () {
     var se = selene({
       browser: 'phantomjs'
     });
@@ -15,7 +15,7 @@ describe('Selene', function () {
     se.goto('https://www.google.com/');
     se.find({ name: 'q' }).type('selene npm').press('enter');
 
-    se.wait('#resultStats');
+    se.wait({ visible: '#resultStats' });
     se.find({ linkText: 'selene - npm' }).click();
 
     se.wait({ url: 'https://www.npmjs.com/package/selene' });
@@ -43,7 +43,6 @@ describe('Selene', function () {
     //     .perform();
     // });
 
-
-    return se.sleep(30000);
+    return se;
   });
 });

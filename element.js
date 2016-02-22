@@ -73,11 +73,6 @@ var fn = {
     return this;
   },
 
-  waitUntilVisible: function () {
-    this.promise = this.getDriver().wait(webdriver.until.elementIsVisible(this));
-    return this;
-  },
-
   dragDrop: function (target) {
     var driver = this.getDriver();
     var self = this;
