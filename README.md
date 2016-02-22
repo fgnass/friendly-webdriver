@@ -2,7 +2,7 @@
 
 The aim of Selene is to provide a WebDriver API with a strong focus on developer experience (DX).
 
-Unlike [other](http://nightwatchjs.org/) [webdriver](http://webdriver.io/) [libraries](https://www.npmjs.com/package/wd), Selene uses the [official](https://www.npmjs.com/package/selenium-webdriver) Selenium JavaScript bindings. This has the big advantage that you __don't need a Selenium server__ in order to control browsers on your local machine. This does not only make things much easier to set up but also saves
+Unlike [other](http://nightwatchjs.org/) [webdriver](http://webdriver.io/) [libraries](https://www.npmjs.com/package/wd), Selene uses the [official](https://www.npmjs.com/package/selenium-webdriver) Selenium JavaScript bindings. This has the big advantage that you __don't need a Selenium server__ in order to control browsers on your local machine. This does not only make things much easier to set up but also makes things considerably faster as it saves a lot of roundtrips.
 
 While being very powerful, the official API sometimes feels a little alien to JavaScript developers as it is very closely modeled after its Java ancestor.
 
