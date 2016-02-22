@@ -6,7 +6,13 @@ var remote = require('selenium-webdriver/remote');
 var until = require('./until');
 var element = require('./element');
 
+var SeActions = require('./actions');
+
 var fn = {
+
+  actions: function () {
+    return new SeActions(this);
+  },
 
   find: function (locator) {
     if (typeof locator == 'string') {
@@ -16,7 +22,7 @@ var fn = {
   },
 
   findElement: function (locator) {
-    return element(this.driver.findElement(locator));
+    return element(this.driver.findElement(locator), this);
   },
 
   findAll: function (locator) {
@@ -27,7 +33,12 @@ var fn = {
   },
 
   findElements: function (locator) {
-    return this.driver.findElements({ css: locator }).map(element);
+    var self = this;
+    return this.driver.findElements(locator).then(function (elements) {
+      return elements.map(function (raw) {
+        return element(raw, self);
+      });
+    });
   },
 
   exists: function (locator) {
@@ -80,7 +91,8 @@ var fn = {
     }
     var self = this;
     Object.keys(values).forEach(function (name) {
-      self.find('[' + attr + '=' + name + ']').fill(values[name]);
+      var f = self.find('[' + attr + '=' + name + ']');
+      f.clear().type(values[name]);
     });
   },
 

@@ -2,20 +2,44 @@ var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
 
 var fn = {
-  attr: function (name) {
-    return this.getAttribute(name);
-  },
-
-  css: function (prop) {
-    return this.getCssValue(prop);
-  },
 
   find: function (sel) {
-    return element(this.findElement({ css: sel }));
+    return element(this.findElement({ css: sel }), this.getDriver());
   },
 
   findAll: function (sel) {
-    return this.findElements({ css: sel }).map(element);
+    var driver = this.getDriver();
+    return this.findElements({ css: sel }).map(function (raw) {
+      return element(raw, driver);
+    });
+  },
+
+  then: function () {
+    return this.promise.then.apply(this.promise, arguments);
+  },
+
+  catch: function () {
+    return this.promise.catch.apply(this.promise, arguments);
+  },
+
+  clear: function () {
+    this.promise = this.rawElement.clear();
+    return this;
+  },
+
+  attr: function (name) {
+    this.promise = this.getAttribute(name);
+    return this.promise;
+  },
+
+  css: function (prop) {
+    this.promise = this.getCssValue(prop);
+    return this.promise;
+  },
+
+  type: function (string) {
+    this.promise = this.sendKeys(string);
+    return this;
   },
 
   /**
@@ -32,27 +56,53 @@ var fn = {
       }
       return keys[0];
     });
-    return this.sendKeys.apply(this, keys);
+    this.promise = this.sendKeys.apply(this, keys);
+    return this;
   },
 
   fill: function (attr, values) {
     if (arguments.length == 1) {
-      if (typeof attr == 'string') {
-        this.clear();
-        return this.sendKeys(attr);
-      }
       values = attr;
       attr = 'name';
     }
     var self = this;
     Object.keys(values).forEach(function (name) {
-      self.find('[' + attr + '=' + name + ']').fill(values[name]);
+      var f = self.find('[' + attr + '=' + name + ']');
+      self.promise = f.clear().type(values[name]);
     });
+    return this;
+  },
+
+  waitUntilVisible: function () {
+    this.promise = this.getDriver().wait(webdriver.until.elementIsVisible(this));
+    return this;
+  },
+
+  dragDrop: function (target) {
+    var driver = this.getDriver();
+    var self = this;
+    if (typeof target == 'string') target = driver.find(target);
+    if (!webdriver.promise.isPromise(target)) {
+      target = webdriver.promise.fulfilled(target);
+    }
+    this.promise = target.then(function (location) {
+      return driver.actions()
+        .mouseMove(location) // fix for target elements that are out of view
+        .mouseDown(self)
+        .mouseMove(location)
+        .mouseUp().perform();
+    });
+    return this;
   }
+
 };
 
-function element(el) {
-  return assign(Object.create(el), fn);
+function element(el, driver) {
+  return assign(Object.create(el), {
+    driver_: driver,
+    rawElement: el,
+    promise: webdriver.promise.fulfilled(el)
+  }, fn);
 }
 
 module.exports = element;

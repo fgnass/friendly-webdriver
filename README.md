@@ -77,30 +77,41 @@ __Options:__
 
 * `click(locator)` Shorthand for `se.find(locator).click()`
 
+* `fill([attribute], values)`
+
+* `actions` Creates a `SeActions` instance.
+
+* `getLogMessages()`
+
 * `wait(condition, timeout, message)`
 
 * `goto(url)`
-
-* `fill([attribute], values)`
-
-* `getLogMessages()`
 
 ## SeElement
 
 `SeElement` extends Selenium's [WebElement](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html) and adds the following methods:
 
-`attr(name)`
+* `attr(name)`
 
-`css(prop)`
+* `css(prop)`
 
-`find(selector)`
+* `find(selector)`
 
-`findAll(selector)`
+* `findAll(selector)`
 
-`press(chord1, chord2, ...)`
+* `dragDrop(target)`
 
-`fill(text)`
-`fill([attribute], values)`
+* `type(text)`
+
+* `press(chord1, chord2, ...)`
+
+* `fill([attribute], values)`
+
+## SeActions
+
+`SeActions` extends Selenium's [ActionSequence](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/actions_exports_ActionSequence.html) and adds the following method:
+
+* `exec(script, args)` Executes arbitrary JavaScript
 
 ## Test runners
 
@@ -110,16 +121,18 @@ Selene does not come with its own test runner nor is it bound to a specific asse
 var assert = require('assert');
 var selene = require('selene');
 
-describe('Google', function() { // <-- no `done` callback here
+describe('Google', function () { // <-- no `done` callback here
 
-  it('should go to the selene npm page', function() {
+  this.timeout(60000); // don't timeout too quickly
+
+  it('should go to the selene npm page', function () {
     var se = selene();
     se.goto('https://www.google.com/');
     se.fill({ q: 'selene npm' });
     se.click('[jsaction=sf.lck]');
     se.wait({ url: 'https://www.npmjs.com/package/selene' });
 
-    se.title().then(function(t) {
+    se.getTitle().then(function (t) {
       assert.equal(t, 'selene');
     });
     return se; // <-- `se` itself acts as promise
