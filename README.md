@@ -37,33 +37,17 @@ The top-level function exported by selene is a facade to Selenium's [Builder](ht
 
 __Options:__
 
-* `alerts` The default action to take with an unexpected alert before returning an error.
-  Can be either  `"accept"`, `"dismiss"` or `"ignore"`. Defaults to `"dismiss"`.
-
-* `nativeEvents` Whether native events should be used.
-
-* `proxyURL` URL of the proxy to use for the WebDriver's HTTP connections.
-
-* `remoteURL` URL of a remote WebDriver server to use. As an alternative to this method, you may also set the `SELENIUM_REMOTE_URL` environment variable.
-
-* `scrollTo` How elements should be scrolled into view for interaction. Can either be `"top"` or  `"bottom"`.
-
-* `logging` Set the log level of different log types:
-  ```json
-  {
-    "browser": "severe",
-    "driver": "debug"
-  }
-  ```
-  Valid types are:  `browser`, `client`, `driver`, `performance` or `server`.
-  Valid levels are: `off`, `severe`, `warning`, `info`, `fine`, `finer`, `finest`, `debug` or `all`.
-
-
-* `capabilities` The desired capabilities when requesting a new session.
-
-* `envOverrrides` Whether to allow the configuration to be overwritten by environment variables. Defaults to `true`.
-
-* `browser` The desired target browser. You may also specify a browser by setting the `SELENIUM_BROWSER` __environment variable__ to `browser[:[version][:platform]]`.
+| Option | Description |
+| ------ | ----------- |
+| alerts | The default action to take with an unexpected alert before returning an error. Can be either  `"accept"`, `"dismiss"` or `"ignore"`. Defaults to `"dismiss"`. |
+| nativeEvents | Whether native events should be used. |
+| proxyURL | URL of the proxy to use for the WebDriver's HTTP connections. |
+| remoteURL | URL of a remote WebDriver server to use. As an alternative to this method, you may also set the `SELENIUM_REMOTE_URL` __environment variable__. |
+| scrollTo | How elements should be scrolled into view for interaction. Can either be `"top"` or  `"bottom"`. |
+| logging | Set the log level of different log types. Valid types are:  `browser`, `client`, `driver`, `performance` or `server`. Valid levels are: `off`, `severe`, `warning`, `info`, `fine`, `finer`, `finest`, `debug` or `all`. |
+| capabilities | The desired capabilities when requesting a new session. |
+| envOverrrides | Whether to allow the configuration to be overwritten by  environment variables. Defaults to `true`. |
+| browser | The desired target browser. You may also specify a browser by  setting the `SELENIUM_BROWSER` __environment variable__ to `browser[:[version][:platform]]`. |
 
 ## Se
 
@@ -81,7 +65,7 @@ __Options:__
 
 * `actions` Creates a `SeActions` instance.
 
-* `getLogMessages()`
+* `getLogMessages(type, [level])`
 
 * `wait(condition, timeout, message)`
 
@@ -142,7 +126,21 @@ describe('Google', function () { // <-- no `done` callback here
 
 Note that there is no `done` callback in the example above. Instead it uses mocha's built-in support for promises by returning the `se` object, which itself is a `thenable`.
 
-## Use it as drop-in replacement
+## Logging
+
+```js
+var se = selene({
+  logging: {
+    browser: 'severe',
+    driver: 'debug'
+  }
+});
+
+console.log(se.getLogMessages('browser'));
+console.log(se.getLogMessages('driver'));
+```
+
+## Selene as drop-in replacement
 All objects created by Selene inherit from their official counterparts, hence checks like `obj instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
 
 This means that you can also use tools like [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver) which mixes very well Selene.
