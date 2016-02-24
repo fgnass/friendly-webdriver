@@ -64,5 +64,15 @@ describe('index', function() {
       return expect(se.find('#ALREADY_FILLED').attr('value'), 'when fulfilled', 'to be', 'NEW_VALUE');
     });
   });
+
+  describe('#exists', function() {
+    it('returns true if an element with the given css selector exists', function() {
+      return expect(se.exists('#EXISTS'), 'when fulfilled', 'to be truthy')
+    });
+
+    it('returns false if no element with the given css selector exists', function() {
+      return expect(se.exists('#DOES_NOT_EXIST'), 'when fulfilled', 'to be falsy')
+    });
+  });
 });
 
