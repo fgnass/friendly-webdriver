@@ -18,15 +18,15 @@ describe('index', function() {
     });
 
     it('finds a single element by its css selector and resolves to a selenium WebElement', function() {
-      return expect(se.find('.SINGLE_CLASS'), 'when fulfilled', 'to be a', driver.WebElement);
+      return expect(se.find('.single_class'), 'when fulfilled', 'to be a', driver.WebElement);
     });
 
     it('finds only the first element by its css selector, even if there are multiple on the page', function() {
-      return expect(se.find('.MULTIPLE_CLASS'), 'when fulfilled', 'to be a', driver.WebElement);
+      return expect(se.find('.multiple_class'), 'when fulfilled', 'to be a', driver.WebElement);
     });
 
     it('raises an error if the element is not present', function() {
-      return expect(se.find('.NOT_AVAILABLE'), 'when rejected', 'to be a', driver.error.NoSuchElementError);
+      return expect(se.find('.not_available'), 'when rejected', 'to be a', driver.error.NoSuchElementError);
     });
   });
 
@@ -42,37 +42,69 @@ describe('index', function() {
     })
 
     it('allows overwriting the "name" attribute for finding inputs', function() {
-      se.fill('id', { STREET_INPUT: 'NEW_STREET' });
+      se.fill('id', { street_input: 'NEW_STREET' });
 
-      return expect(se.find('#STREET_INPUT').attr('value'), 'when fulfilled', 'to be', 'NEW_STREET');
+      return expect(se.find('#street_input').attr('value'), 'when fulfilled', 'to be', 'NEW_STREET');
     });
 
     it('allows filling multiple inputs at once', function() {
-      se.fill('id', { STREET_INPUT: 'NEW_STREET', ZIPCODE_INPUT: 'NEW_ZIPCODE' });
+      se.fill('id', { street_input: 'NEW_STREET', zipcode_input: 'NEW_ZIPCODE' });
 
       return Promise.all([
-        expect(se.find('#ZIPCODE_INPUT').attr('value'), 'when fulfilled', 'to be', 'NEW_ZIPCODE'),
-        expect(se.find('#STREET_INPUT').attr('value'), 'when fulfilled', 'to be', 'NEW_STREET')
+        expect(se.find('#zipcode_input').attr('value'), 'when fulfilled', 'to be', 'NEW_ZIPCODE'),
+        expect(se.find('#street_input').attr('value'), 'when fulfilled', 'to be', 'NEW_STREET')
       ]);
     });
 
     it('clears the input before filling it', function() {
-      expect(se.find('#ALREADY_FILLED').attr('value'), 'when fulfilled', 'to be', 'PREVIOUS_VALUE');
+      expect(se.find('#already_filled').attr('value'), 'when fulfilled', 'to be', 'PREVIOUS_VALUE');
 
-      se.fill('id', { ALREADY_FILLED: 'NEW_VALUE' });
+      se.fill('id', { already_filled: 'NEW_VALUE' });
 
-      return expect(se.find('#ALREADY_FILLED').attr('value'), 'when fulfilled', 'to be', 'NEW_VALUE');
+      return expect(se.find('#already_filled').attr('value'), 'when fulfilled', 'to be', 'NEW_VALUE');
     });
   });
 
   describe('#exists', function() {
     it('returns true if an element with the given css selector exists', function() {
-      return expect(se.exists('#EXISTS'), 'when fulfilled', 'to be truthy')
+      return expect(se.exists('#exists'), 'when fulfilled', 'to be truthy')
     });
 
     it('returns false if no element with the given css selector exists', function() {
-      return expect(se.exists('#DOES_NOT_EXIST'), 'when fulfilled', 'to be falsy')
+      return expect(se.exists('#does_not_exist'), 'when fulfilled', 'to be falsy')
+    });
+  });
+
+  describe('#wait', function() {
+
+    describe('when the condition is a promise', function() {
+      it('waits for the promise to be resolved', function() {
+        var promise = new Promise(function(resolve){
+          setTimeout(function() { resolve('fertig') }, 500);
+        });
+
+        return expect(se.wait(promise, 1000, 'blub'), 'when fulfilled', 'to be', 'fertig');
+      });
+    });
+
+    describe('when the condition is a css selector', function() {
+      it('waits for the respective element to appear in the DOM', function() {
+        se.find('#delayed_wrapper').click();
+
+        var waitingPromise = se.wait('#exists_soon', 501, 'description');
+        return expect(waitingPromise, 'when fulfilled', 'to be a', driver.WebElement);
+      });
+    });
+
+
+    describe.skip('when the condition is a function', function() {
+      it('waits for the function to be finished', function() {
+        const longRunningFn = function() {
+          setTimeout(function() { return 'DONE' }, 100);
+        };
+        var waitingPromise = se.wait(longRunningFn, 2000, 'description');
+        return expect(waitingPromise, 'when fulfilled', 'to be', 'DONE');
+      });
     });
   });
 });
-
