@@ -6,7 +6,7 @@
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
   "license": "MIT",
   "scripts": {
-    "test-unit": "./node_modules/.bin/mocha ./test/unit/**/*.test.js --reporter nyan"
+    "test": "./node_modules/.bin/mocha ./test/unit/**/*.test.js --reporter nyan"
   },
   "keywords": [
     "selenium",
