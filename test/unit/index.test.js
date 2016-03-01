@@ -1,8 +1,9 @@
 var driver = require('selenium-webdriver');
 var selene = require('../..');
 var expect = require('unexpected');
+var path = require('path');
 const se = selene({ browser: 'phantomjs', base: 'file://' });
-const FIXTURE_URL = process.cwd() + '/test/fixtures/test.html';
+const FIXTURE_URL = path.resolve(__dirname, '../fixtures/test.html');
 
 describe('index', function() {
   this.timeout(4000);
