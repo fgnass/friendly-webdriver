@@ -5,6 +5,9 @@
   "repository": "LiquidLabsGmbH/selene",
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
   "license": "MIT",
+  "scripts": {
+    "test": "eslint . && mocha"
+  },
   "keywords": [
     "selenium",
     "webdriver",

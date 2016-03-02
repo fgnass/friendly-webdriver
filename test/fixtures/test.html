@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+  </head>
+  <body style='background-color: pink;'>
+    <span id='exists'></span>
+    <div class='single_class'></div>
+    <div class='multiple_class'></div>
+    <div id='clickable'>content</div>
+    <div id='delayed_wrapper'>make_visible</div>
+    <input id='street_input' type='text' name='street'></input>
+    <input id='zipcode_input' type='text'></input>
+    <input id='already_filled' type='text' value='PREVIOUS_VALUE'></input>
+  </body>
+
+  <script type="text/javascript">
+   var element = document.getElementById('delayed_wrapper');
+   element.addEventListener('click', function () {
+     setTimeout(function () {
+       var p = document.createElement('p');
+       p.setAttribute('id', 'exists_soon');
+       element.appendChild(p);
+     }, 500);
+   });
+  </script>
+</html>

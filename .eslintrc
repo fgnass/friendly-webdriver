@@ -2,6 +2,10 @@
   "extends": [
     "airbnb/legacy"
   ],
+  "env": {
+    "node": true,
+    "mocha": true
+  },
   "rules": {
     "comma-dangle": [2, "never"],
     "eqeqeq": 0,

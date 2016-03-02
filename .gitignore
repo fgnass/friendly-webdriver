@@ -1,1 +1,5 @@
 node_modules
+
+# some logs
+npm-debug.log
+phantomjsdriver.log
