@@ -4,10 +4,12 @@
   ],
   "env": {
     "node": true,
+    "es6": true,
     "mocha": true
   },
   "rules": {
     "comma-dangle": [2, "never"],
+    "consistent-return": 0,
     "eqeqeq": 0,
     "func-names": 0,
     "guard-for-in": 0,
