@@ -173,3 +173,5 @@ module.exports = function selene(driver, opts) {
   if (typeof opts == 'string') opts = { base: opts };
   return se(build(opts), opts);
 };
+
+module.exports.webdriver = webdriver;
