@@ -14,10 +14,32 @@ var fn = {
     return new SeActions(this);
   },
 
-  find: function (locator) {
+  find: function (locator, text) {
     if (typeof locator == 'string') {
       locator = { css: locator };
     }
+
+    if (text) {
+      var el = this.findElements(locator).then(function (elements) {
+        return Promise.all(elements.map(function (el) { return el.getText(); }))
+        .then(function (texts) {
+          var filteredEls = elements.filter(function (el, index) {
+            return text == texts[index];
+          });
+
+          if (filteredEls.length == 0) {
+            throw new webdriver.error.NoSuchElementError();
+          }
+
+          return filteredEls[0];
+        });
+      });
+
+      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
+
+      return element(webElementPromise, this);
+    }
+
     return this.findElement(locator);
   },
 

@@ -37,6 +37,27 @@ describe('index', function () {
       var el = se.find('.not_available');
       return expect(el, 'when rejected', 'to be a', NoSuchElementError);
     });
+
+    describe('providing a text', function () {
+      it('finds the first element with matching CSS selector and text', function () {
+        return se.find('.with_text', 'correct_text').then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getText(), 'when fulfilled', 'to be', 'correct_text');
+        });
+      });
+
+      it('raises an error if the CSS selector is not present', function () {
+        var elPromise = se.find('.not_available', 'some_text');
+
+        return expect(elPromise, 'when rejected', 'to be a', NoSuchElementError);
+      });
+
+      it('raises an error if no element with the given text is found', function () {
+        var elPromise = se.find('.occurs_once', 'text_does_not_exist');
+
+        return expect(elPromise, 'when rejected', 'to be a', NoSuchElementError);
+      });
+    });
   });
 
   describe('#findAll', function () {
