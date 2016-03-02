@@ -13,23 +13,23 @@ var se = selene({
 describe('index', function () {
   this.timeout(4000);
 
+  before(function () {
+    se.goto('test.html');
+  });
+
   describe('#goto', function () {
     it('is really hard to test', function () {
     });
   });
 
   describe('#find', function () {
-    beforeEach(function () {
-      se.goto('test.html');
-    });
-
     it('finds a single WebElement by its CSS selector', function () {
-      var el = se.find('.single_class');
+      var el = se.find('.occurs_once');
       return expect(el, 'when fulfilled', 'to be a', WebElement);
     });
 
     it('finds the first, even if there are multiple elements', function () {
-      var el = se.find('.multiple_class');
+      var el = se.find('.occurs_twice');
       return expect(el, 'when fulfilled', 'to be a', WebElement);
     });
 
@@ -39,11 +39,16 @@ describe('index', function () {
     });
   });
 
-  describe('#fill', function () {
-    beforeEach(function () {
-      se.goto('test.html');
-    });
+  describe('#findAll', function () {
+    it('finds all WebElements by the given CSS selector', function () {
+      var els = se.findAll('.occurs_twice');
 
+      expect(els, 'when fulfilled', 'to be a', Array);
+      return expect(els, 'when fulfilled', 'to have length', 2);
+    });
+  });
+
+  describe('#fill', function () {
     it('finds inputs by the "name" attribute and fills it', function () {
       se.fill({ street: 'NEW_STREET' });
       var value = se.find('[name=\'street\']').attr('value');
@@ -91,7 +96,6 @@ describe('index', function () {
   });
 
   describe('#wait', function () {
-
     describe('when the condition is a promise', function () {
       it('waits for the promise to be resolved', function () {
         var promise = new Promise(function (resolve) {

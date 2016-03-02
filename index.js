@@ -29,7 +29,8 @@ var fn = {
     if (typeof locator == 'string') {
       locator = { css: locator };
     }
-    return this.findElements({ css: locator });
+
+    return this.findElements(locator);
   },
 
   findElements: function (locator) {
@@ -76,7 +77,6 @@ var fn = {
       var temp = URL.parse(target);
       temp.auth = this.opts.auth.user + ':' + this.opts.auth.pass;
       this.authenticated = true;
-
       this.navigate().to(URL.format(temp)).then(function () {
         self.navigate().to(target);
       });
