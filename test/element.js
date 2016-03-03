@@ -1,5 +1,8 @@
 var expect = require('unexpected');
 var selene = require('..');
+var webdriver = require('selenium-webdriver');
+
+var WebElement = webdriver.WebElement;
 
 var se = selene({
   browser: 'phantomjs',
@@ -14,10 +17,11 @@ describe('element', function () {
   });
 
   describe('#parent', function () {
-    it('is really hard to test', function () {
+    it('finds the direct parent and returns it as a WebElement', function () {
       var el = se.find('.inner').parent();
 
-      return expect(el.getAttribute('class'), 'when fulfilled', 'to be', 'outer');
+      expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el.attr('class'), 'when fulfilled', 'to be', 'outer');
     });
   });
 });

@@ -74,7 +74,7 @@ var fn = {
   },
 
   parent: function () {
-    return this.findElement(webdriver.By.xpath('..'));
+    return element(this.findElement(webdriver.By.xpath('..')), this.getDriver());
   },
 
   dragDrop: function (target) {
