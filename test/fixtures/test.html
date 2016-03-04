@@ -23,13 +23,15 @@
   </body>
 
   <script type="text/javascript">
-   var element = document.getElementById('delayed_wrapper');
-   element.addEventListener('click', function () {
-     setTimeout(function () {
-       var p = document.createElement('p');
-       p.setAttribute('id', 'exists_soon');
-       element.appendChild(p);
-     }, 500);
-   });
+    var element = document.getElementById('delayed_wrapper');
+    element.addEventListener('click', function () {
+      setTimeout(function () {
+        var p = document.createElement('p');
+        p.setAttribute('class', 'exists_soon');
+        p.innerHTML='correct text'
+        element.appendChild(p);
+      }, 500);
+
+    });
   </script>
 </html>

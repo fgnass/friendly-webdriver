@@ -128,13 +128,28 @@ describe('index', function () {
     });
 
     describe('when the condition is a css selector', function () {
+      // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
       it('waits for the respective element to appear in the DOM', function () {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait('#exists_soon', 501, 'description');
+        var wait = se.wait('.exists_soon', 600);
+
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
-    });
 
+      it('works with an additional text filter', function () {
+        se.find('#delayed_wrapper').click();
+        var wait = se.wait({ css: '.exists_soon', text: 'correct text' }, 600);
+
+        return expect(wait, 'when fulfilled', 'to be a', WebElement);
+      });
+
+      it('fails with the wrong text', function () {
+        se.find('#delayed_wrapper').click();
+        var wait = se.wait({ css: '.exists_soon', text: 'wrong text' }, 600);
+
+        return expect(wait, 'when rejected', 'to be a', Error);
+      });
+    });
 
     describe('when the condition is a function', function () {
       it('waits for the function to be finished', function () {

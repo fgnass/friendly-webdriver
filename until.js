@@ -27,6 +27,25 @@ function all(conds, method) {
 }
 
 var builders = {
+  cssFiltered: function (props) {
+    return new Condition('for element with ' + props.css + ' and "' + props.text + '"',
+      function (driver) {
+        return driver.findElements({ css: props.css }).then(function (elements) {
+          return Promise.all(elements.map(function (el) { return el.getText(); }))
+            .then(function (texts) {
+              var filteredEls = elements.filter(function (el, index) {
+                return props.text == texts[index];
+              });
+
+              if (filteredEls.length == 0) {
+                return false;
+              }
+
+              return filteredEls[0];
+            });
+        });
+      });
+  },
 
   css: function (sel) {
     return until.elementLocated({ css: sel });
@@ -80,8 +99,11 @@ function build(spec) {
   // if an array is given wait until ANY condition is satisfied
   if (Array.isArray(spec)) return all(spec.map(build), 'some');
 
-  // default to css
-  if (typeof spec == 'string') spec = { css: spec };
+  if (Object.keys(spec).length == 2 &&
+      spec.hasOwnProperty('css') &&
+      spec.hasOwnProperty('text')) {
+    spec = { cssFiltered: { css: spec.css, text: spec.text } };
+  }
 
   // if an object is given, wait until ALL props are satisfied
   return all(Object.keys(spec).map(function (name) {

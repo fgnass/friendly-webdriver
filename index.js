@@ -67,8 +67,13 @@ var fn = {
       && !(cond instanceof webdriver.until.Condition)
       && typeof cond != 'function') {
 
+      if (typeof cond == 'string') {
+        cond = { css: cond };
+      }
+
       cond = until(cond);
     }
+
     return this.driver.wait(cond, timeout, message);
   },
 
