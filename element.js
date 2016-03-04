@@ -1,10 +1,22 @@
 var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
+var filterElementsByText = require('./filterElementsByText');
 
 var fn = {
 
-  find: function (sel) {
-    return element(this.findElement({ css: sel }), this.getDriver());
+  find: function (locator, text) {
+    if (typeof locator == 'string') {
+      locator = { css: locator };
+    }
+
+    if (text) {
+      var el = filterElementsByText.bind(this)(locator, text);
+      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
+
+      return element(webElementPromise, this.getDriver());
+    }
+
+    return element(this.findElement(locator), this.getDriver());
   },
 
   findAll: function (sel) {

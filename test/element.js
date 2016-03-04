@@ -24,4 +24,20 @@ describe('element', function () {
       return expect(el.attr('class'), 'when fulfilled', 'to be', 'outer');
     });
   });
+
+  describe('#find', function () {
+    it('finds sub-elements', function () {
+      var el = se.find('.outer').find('.inner');
+
+      expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el.attr('class'), 'when fulfilled', 'to be', 'inner');
+    });
+
+    it('finds sub-elements by text', function () {
+      var el = se.find('.outer').find('.inner', 'lorem dipsum');
+
+      expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');
+    });
+  });
 });

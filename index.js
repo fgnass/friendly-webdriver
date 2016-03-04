@@ -5,6 +5,7 @@ var remote = require('selenium-webdriver/remote');
 
 var until = require('./until');
 var element = require('./element');
+var filterElementsByText = require('./filterElementsByText');
 
 var SeActions = require('./actions');
 
@@ -20,21 +21,7 @@ var fn = {
     }
 
     if (text) {
-      var el = this.findElements(locator).then(function (elements) {
-        return Promise.all(elements.map(function (el) { return el.getText(); }))
-        .then(function (texts) {
-          var filteredEls = elements.filter(function (el, index) {
-            return text == texts[index];
-          });
-
-          if (filteredEls.length == 0) {
-            throw new webdriver.error.NoSuchElementError();
-          }
-
-          return filteredEls[0];
-        });
-      });
-
+      var el = filterElementsByText.bind(this)(locator, text);
       var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
 
       return element(webElementPromise, this);
