@@ -20,7 +20,10 @@ var fn = {
     }
 
     if (locator.text) {
-      return this.wait(locator, timeout || 2000);
+      var el = this.wait(locator, timeout || 2000);
+      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
+
+      return element(webElementPromise, this);
     }
 
     return this.findElement(locator);
