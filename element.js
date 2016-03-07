@@ -73,6 +73,10 @@ var fn = {
     return this;
   },
 
+  parent: function () {
+    return element(this.findElement(webdriver.By.xpath('..')), this.getDriver());
+  },
+
   dragDrop: function (target) {
     var driver = this.getDriver();
     var self = this;
