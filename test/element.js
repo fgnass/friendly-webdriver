@@ -30,11 +30,12 @@ describe('element', function () {
       var el = se.find('.outer').find('.inner');
 
       expect(el, 'when fulfilled', 'to be a', WebElement);
-      return expect(el.attr('class'), 'when fulfilled', 'to be', 'inner');
+      expect(el.attr('class'), 'when fulfilled', 'to be', 'inner');
+      return expect(el.getText(), 'when fulfilled', 'not to be', 'nested false');
     });
 
     it('finds sub-elements by text', function () {
-      var el = se.find('.outer').find('.inner', 'lorem dipsum');
+      var el = se.find('.outer').find({ css: '.inner', text: 'lorem dipsum' });
 
       expect(el, 'when fulfilled', 'to be a', WebElement);
       return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');

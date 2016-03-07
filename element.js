@@ -4,13 +4,13 @@ var filterElementsByText = require('./filterElementsByText');
 
 var fn = {
 
-  find: function (locator, text) {
+  find: function (locator) {
     if (typeof locator == 'string') {
       locator = { css: locator };
     }
 
-    if (text) {
-      var el = filterElementsByText.bind(this)(locator, text);
+    if (locator.text) {
+      var el = filterElementsByText.bind(this)(locator);
       var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
 
       return element(webElementPromise, this.getDriver());

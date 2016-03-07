@@ -1,5 +1,6 @@
 var URL = require('url');
 var webdriver = require('selenium-webdriver');
+var filterElementsByText = require('./filterElementsByText');
 
 var until = webdriver.until;
 var Condition = until.Condition;
@@ -27,23 +28,10 @@ function all(conds, method) {
 }
 
 var builders = {
-  cssFiltered: function (props) {
-    return new Condition('for element with ' + props.css + ' and "' + props.text + '"',
+  cssFiltered: function (locator) {
+    return new Condition('for element with ' + locator.css + ' and "' + locator.text + '"',
       function (driver) {
-        return driver.findElements({ css: props.css }).then(function (elements) {
-          return Promise.all(elements.map(function (el) { return el.getText(); }))
-            .then(function (texts) {
-              var filteredEls = elements.filter(function (el, index) {
-                return props.text == texts[index];
-              });
-
-              if (filteredEls.length == 0) {
-                return false;
-              }
-
-              return filteredEls[0];
-            });
-        });
+        return filterElementsByText.bind(driver)(locator);
       });
   },
 

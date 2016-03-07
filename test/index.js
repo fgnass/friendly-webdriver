@@ -40,22 +40,22 @@ describe('index', function () {
 
     describe('providing a text', function () {
       it('finds the first element with matching CSS selector and text', function () {
-        return se.find('.with_text', 'correct_text').then(function (el) {
+        return se.find({ css: '.with_text', text: 'correct text' }).then(function (el) {
           expect(el, 'to be a', WebElement);
-          return expect(el.getText(), 'when fulfilled', 'to be', 'correct_text');
+          return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
         });
       });
 
       it('raises an error if the CSS selector is not present', function () {
-        var elPromise = se.find('.not_available', 'some_text');
+        var elPromise = se.find({ css: '.not_available', text: 'some_text' }, 100);
 
-        return expect(elPromise, 'when rejected', 'to be a', NoSuchElementError);
+        return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
       it('raises an error if no element with the given text is found', function () {
-        var elPromise = se.find('.occurs_once', 'text_does_not_exist');
+        var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 100);
 
-        return expect(elPromise, 'when rejected', 'to be a', NoSuchElementError);
+        return expect(elPromise, 'when rejected', 'to be a', Error);
       });
     });
   });

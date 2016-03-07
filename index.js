@@ -5,7 +5,6 @@ var remote = require('selenium-webdriver/remote');
 
 var until = require('./until');
 var element = require('./element');
-var filterElementsByText = require('./filterElementsByText');
 
 var SeActions = require('./actions');
 
@@ -15,16 +14,13 @@ var fn = {
     return new SeActions(this);
   },
 
-  find: function (locator, text) {
+  find: function (locator, timeout) {
     if (typeof locator == 'string') {
       locator = { css: locator };
     }
 
-    if (text) {
-      var el = filterElementsByText.bind(this)(locator, text);
-      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
-
-      return element(webElementPromise, this);
+    if (locator.text) {
+      return this.wait(locator, timeout || 2000);
     }
 
     return this.findElement(locator);
