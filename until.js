@@ -1,5 +1,6 @@
 var URL = require('url');
 var webdriver = require('selenium-webdriver');
+var filterElementsByText = require('./filterElementsByText');
 
 var until = webdriver.until;
 var Condition = until.Condition;
@@ -27,6 +28,12 @@ function all(conds, method) {
 }
 
 var builders = {
+  cssFiltered: function (locator) {
+    return new Condition('for element with ' + locator.css + ' and "' + locator.text + '"',
+      function (driver) {
+        return filterElementsByText.bind(driver)(locator);
+      });
+  },
 
   css: function (sel) {
     return until.elementLocated({ css: sel });
@@ -80,8 +87,11 @@ function build(spec) {
   // if an array is given wait until ANY condition is satisfied
   if (Array.isArray(spec)) return all(spec.map(build), 'some');
 
-  // default to css
-  if (typeof spec == 'string') spec = { css: spec };
+  if (Object.keys(spec).length == 2 &&
+      spec.hasOwnProperty('css') &&
+      spec.hasOwnProperty('text')) {
+    spec = { cssFiltered: { css: spec.css, text: spec.text } };
+  }
 
   // if an object is given, wait until ALL props are satisfied
   return all(Object.keys(spec).map(function (name) {

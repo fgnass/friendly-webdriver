@@ -14,10 +14,18 @@ var fn = {
     return new SeActions(this);
   },
 
-  find: function (locator) {
+  find: function (locator, timeout) {
     if (typeof locator == 'string') {
       locator = { css: locator };
     }
+
+    if (locator.text) {
+      var el = this.wait(locator, timeout || 2000);
+      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
+
+      return element(webElementPromise, this);
+    }
+
     return this.findElement(locator);
   },
 
@@ -58,8 +66,13 @@ var fn = {
       && !(cond instanceof webdriver.until.Condition)
       && typeof cond != 'function') {
 
+      if (typeof cond == 'string') {
+        cond = { css: cond };
+      }
+
       cond = until(cond);
     }
+
     return this.driver.wait(cond, timeout, message);
   },
 

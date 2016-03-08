@@ -37,6 +37,27 @@ describe('index', function () {
       var el = se.find('.not_available');
       return expect(el, 'when rejected', 'to be a', NoSuchElementError);
     });
+
+    describe('providing a text', function () {
+      it('finds the first element with matching CSS selector and text', function () {
+        return se.find({ css: '.with_text', text: 'correct text' }).then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
+        });
+      });
+
+      it('raises an error if the CSS selector is not present', function () {
+        var elPromise = se.find({ css: '.not_available', text: 'some_text' }, 100);
+
+        return expect(elPromise, 'when rejected', 'to be a', Error);
+      });
+
+      it('raises an error if no element with the given text is found', function () {
+        var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 100);
+
+        return expect(elPromise, 'when rejected', 'to be a', Error);
+      });
+    });
   });
 
   describe('#findAll', function () {
@@ -107,13 +128,28 @@ describe('index', function () {
     });
 
     describe('when the condition is a css selector', function () {
+      // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
       it('waits for the respective element to appear in the DOM', function () {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait('#exists_soon', 501, 'description');
+        var wait = se.wait('.exists_soon', 600);
+
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
-    });
 
+      it('works with an additional text filter', function () {
+        se.find('#delayed_wrapper').click();
+        var wait = se.wait({ css: '.exists_soon', text: 'correct text' }, 600);
+
+        return expect(wait, 'when fulfilled', 'to be a', WebElement);
+      });
+
+      it('fails with the wrong text', function () {
+        se.find('#delayed_wrapper').click();
+        var wait = se.wait({ css: '.exists_soon', text: 'wrong text' }, 600);
+
+        return expect(wait, 'when rejected', 'to be a', Error);
+      });
+    });
 
     describe('when the condition is a function', function () {
       it('waits for the function to be finished', function () {

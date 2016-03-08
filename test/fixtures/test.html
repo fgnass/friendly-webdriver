@@ -8,24 +8,36 @@
     <div class='occurs_once'></div>
     <div class='occurs_twice'></div>
     <div class='occurs_twice'></div>
+
     <div id='clickable'>content</div>
-    <div id='delayed_wrapper'>make_visible</div>
+
+    <div id='delayed_wrapper'>click to make .exists_soon visible</div>
+
     <input id='street_input' type='text' name='street'></input>
     <input id='zipcode_input' type='text'></input>
     <input id='already_filled' type='text' value='PREVIOUS_VALUE'></input>
+
+    <div class='with_text'>wrong text</div>
+    <div class='with_text'>correct text</div>
+    <div class='with_text'>correct text</div>
+
+    <div class='inner'>nested false</div>
     <div class='outer'>
       <div class='inner'></div>
+      <div class='inner'>lorem dipsum</div>
     </div>
   </body>
 
   <script type="text/javascript">
-   var element = document.getElementById('delayed_wrapper');
-   element.addEventListener('click', function () {
-     setTimeout(function () {
-       var p = document.createElement('p');
-       p.setAttribute('id', 'exists_soon');
-       element.appendChild(p);
-     }, 500);
-   });
+    var element = document.getElementById('delayed_wrapper');
+    element.addEventListener('click', function () {
+      setTimeout(function () {
+        var p = document.createElement('p');
+        p.setAttribute('class', 'exists_soon');
+        p.innerHTML='correct text'
+        element.appendChild(p);
+      }, 500);
+
+    });
   </script>
 </html>
