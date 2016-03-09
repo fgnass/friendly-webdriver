@@ -3,7 +3,6 @@ var expect = require('unexpected');
 var selene = require('..');
 
 var WebElement = webdriver.WebElement;
-var NoSuchElementError = webdriver.error.NoSuchElementError;
 
 var se = selene({
   browser: 'phantomjs',
@@ -35,7 +34,7 @@ describe('index', function () {
 
     it('raises an error if the element is not present', function () {
       var el = se.find('.not_available');
-      return expect(el, 'when rejected', 'to be a', NoSuchElementError);
+      return expect(el, 'when rejected', 'to be an', Error);
     });
 
     describe('providing a text', function () {
@@ -131,21 +130,23 @@ describe('index', function () {
       // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
       it('waits for the respective element to appear in the DOM', function () {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait('.exists_soon', 600);
-
+        var wait = se.wait({ element: '.exists_soon' }, 600);
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
 
-      it.skip('works with an additional text filter', function () {
+      it('works with an additional text filter', function () {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait({ css: '.exists_soon', text: 'correct text' }, 600);
-
+        var wait = se.wait({
+          element: { css: '.exists_soon', text: 'correct text' }
+        }, 600);
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
 
-      it.skip('fails with the wrong text', function () {
+      it('fails with the wrong text', function () {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait({ css: '.exists_soon', text: 'wrong text' }, 600);
+        var wait = se.wait({
+          element: { css: '.exists_soon', text: 'wrong text' }
+        }, 600);
         return expect(wait, 'when rejected', 'to be a', Error);
       });
     });

@@ -29,7 +29,7 @@ var filters = [
     if (query.text) {
       return function (el) {
         return el.getText().then(function (text) {
-          return ~text.indexOf(query.text);
+          return text.indexOf(query.text) !== -1;
         });
       };
     }
@@ -55,19 +55,15 @@ var fn = {
     return new SeActions(this);
   },
 
-  find: function (query, context) {
-    if (typeof query == 'string') {
-      query = { css: query };
-    }
-
+  locate: function (query, scope) {
     var locator = pick(this.locators, query);
     var filters = pickAll(this.filters, query);
     if (!locator) throw new Error('No locator for ' + query);
     if (!filters.length) {
-      return (context || this).findElement(locator);
+      return (scope || this).findElement(locator);
     }
+    var elements = (scope || this).findElements(locator);
 
-    var elements = (context || this).findElements(locator);
     var filtered = elements.then(function (elements) {
       return applyFilters(elements, filters);
     })
@@ -75,28 +71,20 @@ var fn = {
       if (!filtered || !filtered.length) throw new webdriver.error.NoSuchElementError();
       return filtered[0];
     });
-    return new webdriver.WebElementPromise(this, filtered);
+    return element(new webdriver.WebElementPromise(this, filtered), this);
   },
 
-  findAll: function (query, context) {
-    if (typeof query == 'string') {
-      query = { css: query };
-    }
-
+  locateAll: function (query, scope) {
     var locator = pick(this.locators, query, true);
     var filters = pickAll(this.filters, query);
 
-    var elements = (context || this).findElements(locator);
+    var elements = (scope || this).findElements(locator);
+
     if (!filters.length) return elements;
 
-    var filtered = elements.then(function (elements) {
+    return elements.then(function (elements) {
       return applyFilters(elements, filters);
     });
-
-
-    // TODO Add SeElementPromise
-    // return element(new webdriver.WebElementPromise(this, filtered), this);
-    return filtered;
   },
 
   findElement: function (locator) {
@@ -109,6 +97,17 @@ var fn = {
       return elements.map(function (raw) {
         return element(raw, self);
       });
+    });
+  },
+
+  find: function (locator) {
+    return this.wait({ element: locator }, 200);
+  },
+
+  findAll: function (locator) {
+    var self = this;
+    return this.wait({ element: locator }, 200).then(function () {
+      return self.locateAll(locator);
     });
   },
 
@@ -128,14 +127,14 @@ var fn = {
       && !(cond instanceof webdriver.until.Condition)
       && typeof cond != 'function') {
 
-      if (typeof cond == 'string') {
-        cond = { css: cond };
-      }
-
       cond = until(cond);
     }
 
-    return this.driver.wait(cond, timeout, message);
+    var ret = this.driver.wait.call(this, cond, timeout, message);
+    if (ret instanceof webdriver.WebElementPromise) {
+      ret = element(ret, this);
+    }
+    return ret;
   },
 
   then: function () {

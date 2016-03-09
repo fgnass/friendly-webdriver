@@ -3,12 +3,16 @@ var webdriver = require('selenium-webdriver');
 
 var fn = {
 
-  find: function (locator) {
-    return this.driver_.find(locator, this);
+  find: function (query) {
+    return this.driver_.wait({ scoped: { query: query, scope: this } });
   },
 
-  findAll: function (locator) {
-    return this.driver_.findAll(locator, this);
+  findAll: function (query) {
+    var scope = this;
+    var selene = this.driver_;
+    return selene.wait({ scoped: { query: query, scope: scope } }).then(function () {
+      return selene.locateAll(query, scope);
+    });
   },
 
   findElement: function (locator) {
