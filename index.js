@@ -40,6 +40,7 @@ var fn = {
 
   use: function (plugin) {
     plugin(this);
+    return this;
   },
 
   addLocator: function (locator) {
