@@ -1,6 +1,5 @@
 var URL = require('url');
 var webdriver = require('selenium-webdriver');
-var filterElementsByText = require('./filterElementsByText');
 
 var until = webdriver.until;
 var Condition = until.Condition;
@@ -28,13 +27,14 @@ function all(conds, method) {
 }
 
 var builders = {
+  /*
   cssFiltered: function (locator) {
     return new Condition('for element with ' + locator.css + ' and "' + locator.text + '"',
       function (driver) {
         return filterElementsByText.bind(driver)(locator);
       });
   },
-
+  */
   css: function (sel) {
     return until.elementLocated({ css: sel });
   },

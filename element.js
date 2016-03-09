@@ -1,56 +1,42 @@
 var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
-var filterElementsByText = require('./filterElementsByText');
 
 var fn = {
 
   find: function (locator) {
-    if (typeof locator == 'string') {
-      locator = { css: locator };
-    }
-
-    if (locator.text) {
-      var el = filterElementsByText.bind(this)(locator);
-      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
-
-      return element(webElementPromise, this.getDriver());
-    }
-
-    return element(this.findElement(locator), this.getDriver());
+    return this.driver_.find(locator, this);
   },
 
-  findAll: function (sel) {
-    var driver = this.getDriver();
-    return this.findElements({ css: sel }).map(function (raw) {
-      return element(raw, driver);
+  findAll: function (locator) {
+    return this.driver_.findAll(locator, this);
+  },
+
+  findElement: function (locator) {
+    return element(this.rawElement.findElement(locator), this.driver_);
+  },
+
+  findElements: function (locator) {
+    var selene = this.driver_;
+    return webdriver.promise.map(this.rawElement.findElements(locator), function (raw) {
+      return element(raw, selene);
     });
   },
 
-  then: function () {
-    return this.promise.then.apply(this.promise, arguments);
-  },
-
-  catch: function () {
-    return this.promise.catch.apply(this.promise, arguments);
-  },
-
-  clear: function () {
-    this.promise = this.rawElement.clear();
-    return this;
-  },
-
   attr: function (name) {
-    this.promise = this.getAttribute(name);
-    return this.promise;
+    return this.getAttribute(name);
   },
 
   css: function (prop) {
-    this.promise = this.getCssValue(prop);
-    return this.promise;
+    return this.getCssValue(prop);
+  },
+
+  clear: function () {
+    this.rawElement.clear();
+    return this;
   },
 
   type: function (string) {
-    this.promise = this.sendKeys(string);
+    this.sendKeys(string);
     return this;
   },
 
@@ -68,7 +54,7 @@ var fn = {
       }
       return keys[0];
     });
-    this.promise = this.sendKeys.apply(this, keys);
+    this.sendKeys.apply(this, keys);
     return this;
   },
 
@@ -80,13 +66,13 @@ var fn = {
     var self = this;
     Object.keys(values).forEach(function (name) {
       var f = self.find('[' + attr + '=' + name + ']');
-      self.promise = f.clear().type(values[name]);
+      f.clear().type(values[name]);
     });
     return this;
   },
 
   parent: function () {
-    return element(this.findElement(webdriver.By.xpath('..')), this.getDriver());
+    return this.find(webdriver.By.xpath('..'));
   },
 
   dragDrop: function (target) {
@@ -96,7 +82,7 @@ var fn = {
     if (!webdriver.promise.isPromise(target)) {
       target = webdriver.promise.fulfilled(target);
     }
-    this.promise = target.then(function (location) {
+    target.then(function (location) {
       return driver.actions()
         .mouseMove(location) // fix for target elements that are out of view
         .mouseDown(self)
@@ -108,11 +94,10 @@ var fn = {
 
 };
 
-function element(el, driver) {
+function element(el, selene) {
   return assign(Object.create(el), {
-    driver_: driver,
-    rawElement: el,
-    promise: webdriver.promise.fulfilled(el)
+    driver_: selene,
+    rawElement: el
   }, fn);
 }
 

@@ -8,37 +8,98 @@ var element = require('./element');
 
 var SeActions = require('./actions');
 
+var locators = [
+  function css(query) {
+    if (typeof query === 'string') {
+      return webdriver.By.css(query);
+    }
+  },
+  function builtIns(query) {
+    if (query instanceof webdriver.By) return query;
+    for (var key in query) {
+      if (query.hasOwnProperty(key) && webdriver.By.hasOwnProperty(key)) {
+        return webdriver.By[key](query[key]);
+      }
+    }
+  }
+];
+
+var filters = [
+  function text(query) {
+    if (query.text) {
+      return function (el) {
+        return el.getText().then(function (text) {
+          return ~text.indexOf(query.text);
+        });
+      };
+    }
+  }
+];
+
 var fn = {
+
+  use: function (plugin) {
+    plugin(this);
+  },
+
+  addLocator: function (locator) {
+    this.locators.push(locator);
+  },
+
+  addFilter: function (filter) {
+    this.filters.push(filter);
+  },
 
   actions: function () {
     return new SeActions(this);
   },
 
-  find: function (locator, timeout) {
-    if (typeof locator == 'string') {
-      locator = { css: locator };
+  find: function (query, context) {
+    if (typeof query == 'string') {
+      query = { css: query };
     }
 
-    if (locator.text) {
-      var el = this.wait(locator, timeout || 2000);
-      var webElementPromise = new webdriver.WebElementPromise(webdriver, el);
-
-      return element(webElementPromise, this);
+    var locator = pick(this.locators, query);
+    var filters = pickAll(this.filters, query);
+    if (!locator) throw new Error('No locator for ' + query);
+    if (!filters.length) {
+      return (context || this).findElement(locator);
     }
 
-    return this.findElement(locator);
+    var elements = (context || this).findElements(locator);
+    var filtered = elements.then(function (elements) {
+      return applyFilters(elements, filters);
+    })
+    .then(function (filtered) {
+      if (!filtered || !filtered.length) throw new webdriver.error.NoSuchElementError();
+      return filtered[0];
+    });
+    return new webdriver.WebElementPromise(this, filtered);
+  },
+
+  findAll: function (query, context) {
+    if (typeof query == 'string') {
+      query = { css: query };
+    }
+
+    var locator = pick(this.locators, query, true);
+    var filters = pickAll(this.filters, query);
+
+    var elements = (context || this).findElements(locator);
+    if (!filters.length) return elements;
+
+    var filtered = elements.then(function (elements) {
+      return applyFilters(elements, filters);
+    });
+
+
+    // TODO Add SeElementPromise
+    // return element(new webdriver.WebElementPromise(this, filtered), this);
+    return filtered;
   },
 
   findElement: function (locator) {
     return element(this.driver.findElement(locator), this);
-  },
-
-  findAll: function (locator) {
-    if (typeof locator == 'string') {
-      locator = { css: locator };
-    }
-
-    return this.findElements(locator);
   },
 
   findElements: function (locator) {
@@ -128,7 +189,9 @@ var fn = {
 function se(driver, opts) {
   return assign(Object.create(driver), fn, {
     opts: opts || {},
-    driver: driver
+    driver: driver,
+    locators: locators.slice(),
+    filters: filters.slice()
   });
 }
 
@@ -178,13 +241,47 @@ function build(opts) {
   return driver;
 }
 
-module.exports = function selene(driver, opts) {
+function selene(driver, opts) {
   if (driver && driver instanceof webdriver.WebDriver) {
     return se(driver, opts);
   }
   opts = driver || {};
   if (typeof opts == 'string') opts = { base: opts };
   return se(build(opts), opts);
+}
+
+selene.addLocator = function (locator) {
+  locators.push(locator);
 };
 
+function pick(functions) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  var ret;
+  functions.some(function (fn) {
+    ret = fn.apply(null, args);
+    return ret;
+  });
+  return ret;
+}
+
+function pickAll(functions) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return functions.map(function (fn) {
+    return fn.apply(null, args);
+  })
+  .filter(Boolean);
+}
+
+function applyFilters(elements, filters) {
+  return webdriver.promise.filter(elements, function (el) {
+    return webdriver.promise.map(filters, function (filter) {
+      return filter(el);
+    })
+    .then(function (filterResults) {
+      return filterResults.every(Boolean);
+    });
+  });
+}
+
+module.exports = selene;
 module.exports.webdriver = webdriver;
