@@ -18,10 +18,9 @@ describe('element', function () {
 
   describe('#parent', function () {
     it('finds the direct parent and returns it as a WebElement', function () {
-      var el = se.find({ css: '.inner', text: 'lorem dipsum' }).parent();
-
+      var el = se.find('.child').parent();
       expect(el, 'when fulfilled', 'to be a', WebElement);
-      return expect(el.attr('class'), 'when fulfilled', 'to be', 'outer');
+      return expect(el.attr('class'), 'when fulfilled', 'to be', 'parent');
     });
   });
 
