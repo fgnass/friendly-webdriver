@@ -3,14 +3,15 @@ var webdriver = require('selenium-webdriver');
 
 var fn = {
 
-  find: function (query) {
-    return this.driver_.wait({ scoped: { query: query, scope: this } });
+  find: function (query, timeout) {
+    return this.driver_.wait({ scoped: { query: query, scope: this } }, (timeout || 2000));
   },
 
-  findAll: function (query) {
+  findAll: function (query, timeout) {
     var scope = this;
     var selene = this.driver_;
-    return selene.wait({ scoped: { query: query, scope: scope } }).then(function () {
+    timeout = (timeout || 2000);
+    return selene.wait({ scoped: { query: query, scope: scope } }, timeout).then(function () {
       return selene.locateAll(query, scope);
     });
   },

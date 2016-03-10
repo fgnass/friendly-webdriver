@@ -33,7 +33,7 @@ describe('index', function () {
     });
 
     it('raises an error if the element is not present', function () {
-      var el = se.find('.not_available');
+      var el = se.find('.not_available', 200);
       return expect(el, 'when rejected', 'to be an', Error);
     });
 
@@ -46,13 +46,13 @@ describe('index', function () {
       });
 
       it('raises an error if the CSS selector is not present', function () {
-        var elPromise = se.find({ css: '.not_available', text: 'some_text' });
+        var elPromise = se.find({ css: '.not_available', text: 'some_text' }, 200);
 
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
       it('raises an error if no element with the given text is found', function () {
-        var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' });
+        var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
 
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });

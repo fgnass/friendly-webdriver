@@ -100,14 +100,14 @@ var fn = {
     });
   },
 
-  find: function (locator) {
-    return this.wait({ element: locator }, 200);
+  find: function (query, timeout) {
+    return this.wait({ element: query }, (timeout || 2000));
   },
 
-  findAll: function (locator) {
+  findAll: function (query, timeout) {
     var self = this;
-    return this.wait({ element: locator }, 200).then(function () {
-      return self.locateAll(locator);
+    return this.wait({ element: query }, (timeout || 2000)).then(function () {
+      return self.locateAll(query);
     });
   },
 
