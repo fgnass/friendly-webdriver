@@ -37,7 +37,7 @@ describe('index', function () {
       return expect(el, 'when rejected', 'to be an', Error);
     });
 
-    describe('providing a text', function () {
+    describe('providing a filter', function () {
       it('finds the first element with matching CSS selector and text', function () {
         return se.find({ css: '.with_text', text: 'correct text' }).then(function (el) {
           expect(el, 'to be a', WebElement);
@@ -47,7 +47,6 @@ describe('index', function () {
 
       it('raises an error if the CSS selector is not present', function () {
         var elPromise = se.find({ css: '.not_available', text: 'some_text' }, 200);
-
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
@@ -55,6 +54,20 @@ describe('index', function () {
         var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
 
         return expect(elPromise, 'when rejected', 'to be a', Error);
+      });
+
+      it('filters visible elements', function () {
+        return se.find({ css: '.visibility', visible: true }).then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getInnerHtml(), 'to be fulfilled with', 'visible');
+        });
+      });
+
+      it('filters invisible elements', function () {
+        return se.find({ css: '.visibility', visible: false }).then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getInnerHtml(), 'to be fulfilled with', 'invisible');
+        });
       });
     });
   });

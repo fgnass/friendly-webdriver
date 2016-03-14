@@ -61,22 +61,6 @@ var builders = {
     return until.titles(title);
   },
 
-  visible: function (sel) {
-    return new until.WebElementCondition('for ' + sel + ' to become visible',
-      function (driver) {
-        if (typeof sel == 'string') {
-          sel = { css: sel };
-        }
-        return driver.findElements(sel).then(function (elements) {
-          var el = elements[0];
-          return el && el.isDisplayed().then(function (v) {
-            return v ? el : null;
-          });
-        });
-      }
-    );
-  },
-
   unless: function (spec) {
     var cond = build(spec);
     return new Condition('unless ' + spec, function (driver) {

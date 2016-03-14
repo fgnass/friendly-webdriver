@@ -33,6 +33,15 @@ var filters = [
         });
       };
     }
+  },
+  function visible(query) {
+    if (query.visible !== undefined) {
+      return function (el) {
+        return el.isDisplayed().then(function (v) {
+          return v == query.visible;
+        });
+      };
+    }
   }
 ];
 
