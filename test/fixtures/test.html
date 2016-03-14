@@ -43,4 +43,16 @@
 
     });
   </script>
+
+  <script type="text/javascript">
+    var wrapper = document.getElementById('delayed_wrapper');
+    var isEnabled = window.localStorage.getItem('renderDelayedReloadItem')
+
+    if(isEnabled) {
+      var el = document.createElement('div')
+      el.setAttribute('class', 'reload-item')
+      el.innerHTML = 'correct text'
+      wrapper.appendChild(el)
+    }
+  </script>
 </html>

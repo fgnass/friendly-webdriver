@@ -162,4 +162,43 @@ describe('index', function () {
       });
     });
   });
+
+  describe('#reloadUntil', function () {
+    beforeEach(function () {
+      setTimeout(function () {
+        se.executeScript(function () {
+          window.localStorage.setItem('renderDelayedReloadItem', true);
+        });
+      }, 100);
+    });
+
+    afterEach(function () {
+      return se.executeScript(function () {
+        window.localStorage.clear();
+      }).then(function () {
+        return se.navigate().refresh();
+      });
+    });
+
+    it('supports simple css selector', function () {
+      var wait = se.reloadUntil('.reload-item');
+
+      return expect(wait, 'when fulfilled', 'to be a', WebElement);
+    });
+
+    it('supports text filter', function () {
+      var wait = se.reloadUntil({ css: '.reload-item', text: 'correct text' });
+
+      return expect(wait, 'when fulfilled', 'to be a', WebElement);
+    });
+
+    it('supports chained expressions', function () {
+      var wait = se.reloadUntil(function () {
+        return se.find('#delayed_wrapper', 10).find('.reload-item', 10);
+      }, 2000);
+
+      return expect(wait, 'when fulfilled', 'to be a', WebElement);
+    });
+
+  });
 });
