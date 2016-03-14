@@ -89,6 +89,25 @@ var builders = {
         });
       });
     });
+  },
+
+  reloadUntil: function (query) {
+    return new until.WebElementCondition('for ' + query,
+      function (driver) {
+        if (typeof query === 'function') {
+          return query().catch(function () {
+            return driver.navigate().refresh().then(function () {
+              return false;
+            });
+          });
+        }
+
+        return driver.locate(query).catch(function () {
+          driver.navigate().refresh();
+          return undefined;
+        });
+      }
+    );
   }
 };
 

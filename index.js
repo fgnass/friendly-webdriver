@@ -171,6 +171,10 @@ var fn = {
     });
   },
 
+  reloadUntil: function (query, timeout) {
+    return this.wait({ reloadUntil: query }, (timeout || 2000));
+  },
+
   getLogMessages: function (type, level) {
     var t = webdriver.logging.Type[type.toUpperCase()];
     if (!t) throw new Error('No such log type: ' + type);
