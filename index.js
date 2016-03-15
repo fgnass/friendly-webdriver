@@ -1,55 +1,13 @@
 var URL = require('url');
 var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
-var remote = require('selenium-webdriver/remote');
-
-var until = require('./until');
-var element = require('./element');
 
 var SeActions = require('./actions');
-
-var locators = [
-  function css(query) {
-    if (typeof query === 'string') {
-      return webdriver.By.css(query);
-    }
-  },
-  function builtIns(query) {
-    if (query instanceof webdriver.By) return query;
-    for (var key in query) {
-      if (query.hasOwnProperty(key) && webdriver.By.hasOwnProperty(key)) {
-        return webdriver.By[key](query[key]);
-      }
-    }
-  }
-];
-
-var filters = [
-  function text(query) {
-    if (query.text) {
-      return function (el) {
-        return el.getText().then(function (text) {
-          if (typeof query.text == 'function') {
-            return query.text(text);
-          }
-          if (query.text instanceof RegExp) {
-            return query.text.test(text);
-          }
-          return text.indexOf(query.text) !== -1;
-        });
-      };
-    }
-  },
-  function visible(query) {
-    if (query.visible !== undefined) {
-      return function (el) {
-        return el.isDisplayed().then(function (v) {
-          return v == query.visible;
-        });
-      };
-    }
-  }
-];
+var build = require('./build');
+var element = require('./element');
+var filters = require('./filters');
+var locators = require('./locators');
+var until = require('./until');
 
 var fn = {
 
@@ -212,52 +170,6 @@ function se(driver, opts) {
     locators: locators.slice(),
     filters: filters.slice()
   });
-}
-
-function loggingPrefs(opts) {
-  if (opts instanceof webdriver.logging.Preferences) return opts;
-  var prefs = new webdriver.logging.Preferences();
-  Object.keys(opts).forEach(function (key) {
-    var type = webdriver.logging.Type[key.toUpperCase()];
-    var level = webdriver.logging.Level[opts[key].toUpperCase()];
-    if (type === undefined) throw new Error('No such type: ' + key);
-    if (level === undefined) throw new Error('No such level: ' + opts[key]);
-    prefs.setLevel(type, level);
-  });
-  return prefs;
-}
-
-function build(opts) {
-  var b = new webdriver.Builder();
-  if (opts.capabilities) b.withCapabilities(opts.capabilities);
-
-  if ('envOverrrides' in opts && !opts.envOverrrides) b.disableEnvironmentOverrides();
-  if ('alerts' in opts) b.setAlertBehavior(opts.alerts);
-  if ('nativeEvents' in opts) b.setEnableNativeEvents(opts.nativeEvents);
-  if ('proxy' in opts) b.setProxy(opts.proxy);
-  if ('proxyURL' in opts) b.usingWebDriverProxy(opts.proxyURL);
-  if ('remoteURL' in opts) b.usingServer(opts.remoteURL);
-  if (opts.logging) b.setLoggingPrefs(loggingPrefs(opts.logging));
-  if (opts.scrollTo == 'top') b.setScrollBehavior(0);
-  if (opts.scrollTo == 'bottom') b.setScrollBehavior(1);
-  if (opts.chrome) b.setChromeOptions(opts.chrome);
-  if (opts.firefox) b.setFirefoxOptions(opts.firefox);
-  if (opts.edge) b.setEdgeOptions(opts.edge);
-  if (opts.ie) b.setIeOptions(opts.ie);
-  if (opts.opera) b.setOperaOptions(opts.opera);
-  if (opts.safari) b.setSafariOptions(opts.safari);
-
-  var browser = opts.browser || 'firefox';
-  b.forBrowser.apply(b, browser.split(':'));
-
-  var driver = b.build();
-  driver.getCapabilities().then(function (c) {
-    if (c.has('webdriver.remote.sessionid')) {
-      driver.setFileDetector(new remote.FileDetector());
-    }
-  });
-
-  return driver;
 }
 
 function selene(driver, opts) {
