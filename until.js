@@ -67,17 +67,13 @@ var builders = {
   reloadUntil: function (query) {
     return new until.WebElementCondition('for ' + query,
       function (driver) {
-        if (typeof query === 'function') {
-          return query().catch(function () {
-            return driver.navigate().refresh().then(function () {
-              return false;
-            });
+        function reload(promise) {
+          return promise.catch(function () {
+            driver.navigate().refresh();
           });
         }
-        return Query.create(query).one(driver).catch(function () {
-          driver.navigate().refresh();
-          return undefined;
-        });
+        if (typeof query === 'function') return reload(query());
+        return reload(Query.create(query).one(driver));
       }
     );
   }
