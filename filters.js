@@ -1,10 +1,12 @@
+'use strict';
+
 module.exports = [
   function text(query) {
     if (query.text) {
-      var test = matchText(query.text);
+      const test = matchText(query.text);
       return {
         desciption: test.description,
-        test: function (el) {
+        test(el) {
           return el.getText().then(test.test);
         }
       };
@@ -14,10 +16,8 @@ module.exports = [
     if (query.visible !== undefined) {
       return {
         description: query.visible ? 'visible' : 'invisible',
-        test: function (el) {
-          return el.isDisplayed().then(function (v) {
-            return v == query.visible;
-          });
+        test(el) {
+          return el.isDisplayed().then(v => v == query.visible);
         }
       };
     }
@@ -27,21 +27,21 @@ module.exports = [
 function matchText(expected) {
   if (typeof expected == 'function') {
     return {
-      desciption: 'passing ' + (expected.name || 'function') + '()',
+      desciption: `passing ${expected.name || 'function'}()`,
       test: expected
     };
   }
   if (expected instanceof RegExp) {
     return {
-      desciption: 'matching ' + expected.toString(),
-      test: function (text) {
+      desciption: `matching ${expected.toString()}`,
+      test(text) {
         return expected.test(text);
       }
     };
   }
   return {
-    decription: 'containing ' + JSON.stringify(expected),
-    test: function (text) {
+    decription: `containing ${JSON.stringify(expected)}`,
+    test(text) {
       return ~text.indexOf(expected);
     }
   };

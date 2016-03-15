@@ -1,21 +1,23 @@
-var webdriver = require('selenium-webdriver');
-var remote = require('selenium-webdriver/remote');
+'use strict';
+
+const webdriver = require('selenium-webdriver');
+const remote = require('selenium-webdriver/remote');
 
 function loggingPrefs(opts) {
   if (opts instanceof webdriver.logging.Preferences) return opts;
-  var prefs = new webdriver.logging.Preferences();
-  Object.keys(opts).forEach(function (key) {
-    var type = webdriver.logging.Type[key.toUpperCase()];
-    var level = webdriver.logging.Level[opts[key].toUpperCase()];
-    if (type === undefined) throw new Error('No such type: ' + key);
-    if (level === undefined) throw new Error('No such level: ' + opts[key]);
+  const prefs = new webdriver.logging.Preferences();
+  Object.keys(opts).forEach(key => {
+    const type = webdriver.logging.Type[key.toUpperCase()];
+    const level = webdriver.logging.Level[opts[key].toUpperCase()];
+    if (type === undefined) throw new Error(`No such type: ${key}`);
+    if (level === undefined) throw new Error(`No such level: ${opts[key]}`);
     prefs.setLevel(type, level);
   });
   return prefs;
 }
 
 module.exports = function (opts) {
-  var b = new webdriver.Builder();
+  const b = new webdriver.Builder();
   if (opts.capabilities) b.withCapabilities(opts.capabilities);
 
   if ('envOverrrides' in opts && !opts.envOverrrides) b.disableEnvironmentOverrides();
@@ -34,11 +36,11 @@ module.exports = function (opts) {
   if (opts.opera) b.setOperaOptions(opts.opera);
   if (opts.safari) b.setSafariOptions(opts.safari);
 
-  var browser = opts.browser || 'firefox';
+  const browser = opts.browser || 'firefox';
   b.forBrowser.apply(b, browser.split(':'));
 
-  var driver = b.build();
-  driver.getCapabilities().then(function (c) {
+  const driver = b.build();
+  driver.getCapabilities().then(c => {
     if (c.has('webdriver.remote.sessionid')) {
       driver.setFileDetector(new remote.FileDetector());
     }

@@ -1,33 +1,35 @@
-var assign = require('object-assign');
-var command = require('selenium-webdriver/lib/command');
-var webdriver = require('selenium-webdriver');
+'use strict';
 
-var ActionSequence = webdriver.ActionSequence;
-var Button = webdriver.Button;
-var Key = webdriver.Key;
+const assign = require('object-assign');
+const command = require('selenium-webdriver/lib/command');
+const webdriver = require('selenium-webdriver');
 
-var fn = {
+const ActionSequence = webdriver.ActionSequence;
+const Button = webdriver.Button;
+const Key = webdriver.Key;
 
-  exec: function (script) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    var cmd = new command.Command(command.Name.EXECUTE_SCRIPT);
+const fn = {
+
+  exec(script) {
+    const args = Array.prototype.slice.call(arguments, 1);
+    const cmd = new command.Command(command.Name.EXECUTE_SCRIPT);
     cmd.setParameter('script', script);
     cmd.setParameter('args', args);
     this.schedule_('exec', cmd);
     return this;
   },
 
-  keyDown: function (key) {
-    var code = Key[key.toUpperCase()] || key;
+  keyDown(key) {
+    const code = Key[key.toUpperCase()] || key;
     return ActionSequence.keyDown.call(this, code);
   },
 
-  keyUp: function (key) {
-    var code = Key[key.toUpperCase()] || key;
+  keyUp(key) {
+    const code = Key[key.toUpperCase()] || key;
     return ActionSequence.keyUp.call(this, code);
   },
 
-  click: function (element, button) {
+  click(element, button) {
     if (arguments.length == 1) {
       button = element;
       element = null;

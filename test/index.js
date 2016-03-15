@@ -1,132 +1,133 @@
-var webdriver = require('selenium-webdriver');
-var expect = require('unexpected');
-var selene = require('..');
+'use strict';
 
-var WebElement = webdriver.WebElement;
+const webdriver = require('selenium-webdriver');
+const expect = require('unexpected');
+const selene = require('..');
 
-var se = selene({
+const WebElement = webdriver.WebElement;
+
+const se = selene({
   browser: 'phantomjs',
-  base: 'file://' + __dirname + '/fixtures/'
+  base: `file://${__dirname}/fixtures/`
 });
 
 describe('index', function () {
   this.timeout(4000);
 
-  before(function () {
-    se.goto('test.html');
-  });
+  before(() => se.goto('test.html'));
 
-  describe('#goto', function () {
-    it('is really hard to test', function () {
+  describe.skip('#goto', () => {
+    it('is really hard to test', () => {
     });
   });
 
-  describe('#find', function () {
-    it('finds a single WebElement by its CSS selector', function () {
-      var el = se.find('.occurs_once');
+  describe('#find', () => {
+    it('finds a single WebElement by its CSS selector', () => {
+      const el = se.find('.occurs_once');
       return expect(el, 'when fulfilled', 'to be a', WebElement);
     });
 
-    it('finds the first, even if there are multiple elements', function () {
-      var el = se.find('.occurs_twice');
+    it('finds the first, even if there are multiple elements', () => {
+      const el = se.find('.occurs_twice');
       return expect(el, 'when fulfilled', 'to be a', WebElement);
     });
 
-    it('raises an error if the element is not present', function () {
-      var el = se.find('.not_available', 200);
+    it('raises an error if the element is not present', () => {
+      const el = se.find('.not_available', 200);
       return expect(el, 'when rejected', 'to be an', Error);
     });
 
-    describe('providing a filter', function () {
-      it('finds the first element with matching CSS selector and text', function () {
-        return se.find({ css: '.with_text', text: 'correct text' }).then(function (el) {
+    describe('providing a filter', () => {
+      it('finds the first element with matching CSS selector and text', () =>
+        se.find({ css: '.with_text', text: 'correct text' })
+        .then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
-        });
-      });
+        })
+      );
 
-      it('raises an error if the CSS selector is not present', function () {
-        var elPromise = se.find({ css: '.not_available', text: 'some_text' }, 200);
+      it('raises an error if the CSS selector is not present', () => {
+        const elPromise = se.find({ css: '.not_available', text: 'some_text' }, 200);
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
-      it('raises an error if no element with the given text is found', function () {
-        var el = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
+      it('raises an error if no element with the given text is found', () => {
+        const el = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
         return expect(el, 'when rejected', 'to have message',
           /Waiting for css \.occurs_once/
         );
       });
 
-      it('matches text using regular expressions', function () {
-        return se.find({ css: '.with_text', text: /correct/ }).then(function (el) {
+      it('matches text using regular expressions', () =>
+        se.find({ css: '.with_text', text: /correct/ }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
-        });
-      });
+        })
+      );
 
-      it('matches text using functions', function () {
+      it('matches text using functions', () => {
         function match(t) {
           return t == 'correct text';
         }
-        return se.find({ css: '.with_text', text: match }).then(function (el) {
+        return se.find({ css: '.with_text', text: match }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
         });
       });
 
-      it('filters visible elements', function () {
-        return se.find({ css: '.visibility', visible: true }).then(function (el) {
+      it('filters visible elements', () =>
+        se.find({ css: '.visibility', visible: true }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getInnerHtml(), 'to be fulfilled with', 'visible');
-        });
-      });
+        })
+      );
 
-      it('filters invisible elements', function () {
-        return se.find({ css: '.visibility', visible: false }).then(function (el) {
+      it('filters invisible elements', () =>
+        se.find({ css: '.visibility', visible: false }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getInnerHtml(), 'to be fulfilled with', 'invisible');
-        });
-      });
+        })
+      );
     });
   });
 
-  describe('#findAll', function () {
-    it('finds all WebElements by the given CSS selector', function () {
-      var els = se.findAll('.occurs_twice');
+  describe('#findAll', () => {
+    it('finds all WebElements by the given CSS selector', () => {
+      const els = se.findAll('.occurs_twice');
 
       expect(els, 'when fulfilled', 'to be a', Array);
       return expect(els, 'when fulfilled', 'to have length', 2);
     });
   });
 
-  describe('#fill', function () {
-    it('finds inputs by the "name" attribute and fills it', function () {
+  describe('#fill', () => {
+    it('finds inputs by the "name" attribute and fills it', () => {
       se.fill({ street: 'NEW_STREET' });
-      var value = se.find("[name='street']").attr('value');
+      const value = se.find("[name='street']").attr('value');
       return expect(value, 'to be fulfilled with', 'NEW_STREET');
     });
 
-    it('allows using arbitrary attributes for finding inputs', function () {
+    it('allows using arbitrary attributes for finding inputs', () => {
       se.fill('id', { street_input: 'NEW_STREET' });
-      var value = se.find('#street_input').attr('value');
+      const value = se.find('#street_input').attr('value');
       return expect(value, 'to be fulfilled with', 'NEW_STREET');
     });
 
-    it('allows filling multiple inputs at once', function () {
+    it('allows filling multiple inputs at once', () => {
       se.fill('id', {
         street_input: 'NEW_STREET',
         zipcode_input: 'NEW_ZIPCODE'
       });
-      var zipcode = se.find('#zipcode_input').attr('value');
-      var street = se.find('#street_input').attr('value');
+      const zipcode = se.find('#zipcode_input').attr('value');
+      const street = se.find('#street_input').attr('value');
       return Promise.all([
         expect(zipcode, 'to be fulfilled with', 'NEW_ZIPCODE'),
         expect(street, 'to be fulfilled with', 'NEW_STREET')
       ]);
     });
 
-    it('clears the input before filling it', function () {
-      var el = se.find('#already_filled');
+    it('clears the input before filling it', () => {
+      const el = se.find('#already_filled');
       expect(el.attr('value'), 'to be fulfilled with', 'PREVIOUS_VALUE');
 
       se.fill('id', { already_filled: 'NEW_VALUE' });
@@ -134,48 +135,48 @@ describe('index', function () {
     });
   });
 
-  describe('#exists', function () {
-    it('returns true the specified element exists', function () {
-      var exists = se.exists('#exists');
+  describe('#exists', () => {
+    it('returns true the specified element exists', () => {
+      const exists = se.exists('#exists');
       return expect(exists, 'to be fulfilled with', true);
     });
 
-    it('returns false if the specified element does not exist', function () {
-      var exists = se.exists('#does_not_exist');
+    it('returns false if the specified element does not exist', () => {
+      const exists = se.exists('#does_not_exist');
       return expect(exists, 'to be fulfilled with', false);
     });
   });
 
-  describe('#wait', function () {
-    describe('when the condition is a promise', function () {
-      it('waits for the promise to be resolved', function () {
-        var promise = new Promise(function (resolve) {
-          setImmediate(function () { resolve('done'); });
-        });
-        var wait = se.wait(promise, 1000, 'message');
+  describe('#wait', () => {
+    describe('when the condition is a promise', () => {
+      it('waits for the promise to be resolved', () => {
+        const promise = new Promise(
+          resolve => setImmediate(() => resolve('done'))
+        );
+        const wait = se.wait(promise, 1000, 'message');
         return expect(wait, 'to be fulfilled with', 'done');
       });
     });
 
-    describe('when the condition is a css selector', function () {
+    describe('when the condition is a css selector', () => {
       // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
-      it('waits for the respective element to appear in the DOM', function () {
+      it('waits for the respective element to appear in the DOM', () => {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait({ element: '.exists_soon' }, 600);
+        const wait = se.wait({ element: '.exists_soon' }, 600);
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
 
-      it('works with an additional text filter', function () {
+      it('works with an additional text filter', () => {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait({
+        const wait = se.wait({
           element: { css: '.exists_soon', text: 'correct text' }
         }, 600);
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
 
-      it('fails with the wrong text', function () {
+      it('fails with the wrong text', () => {
         se.find('#delayed_wrapper').click();
-        var wait = se.wait({
+        const wait = se.wait({
           element: { css: '.exists_soon', text: 'wrong text' }
         }, 600);
         return expect(wait, 'when rejected', 'to have message',
@@ -184,52 +185,51 @@ describe('index', function () {
       });
     });
 
-    describe('when the condition is a function', function () {
-      it('waits for the function to be finished', function () {
-        var i = 0;
+    describe('when the condition is a function', () => {
+      it('waits for the function to be finished', () => {
+        let i = 0;
         function fn() {
           if (i++ > 1) return 'DONE';
         }
-        var wait = se.wait(fn, 2000, 'message');
+        const wait = se.wait(fn, 2000, 'message');
         return expect(wait, 'to be fulfilled with', 'DONE');
       });
     });
   });
 
-  describe('#reloadUntil', function () {
-    beforeEach(function () {
-      setTimeout(function () {
-        se.executeScript(function () {
-          window.localStorage.setItem('renderDelayedReloadItem', true);
-        });
-      }, 100);
+  describe('#reloadUntil', () => {
+
+    function setDelayed() {
+      window.localStorage.setItem('renderDelayedReloadItem', true);
+    }
+
+    function clearStorage() {
+      window.localStorage.clear();
+    }
+
+    beforeEach(() => {
+      setTimeout(() => se.executeScript(setDelayed), 100);
     });
 
-    afterEach(function () {
-      return se.executeScript(function () {
-        window.localStorage.clear();
-      }).then(function () {
-        return se.navigate().refresh();
-      });
-    });
+    afterEach(() =>
+      se.executeScript(clearStorage).then(() => se.navigate().refresh())
+    );
 
-    it('supports simple css selector', function () {
-      var wait = se.reloadUntil('.reload-item');
-
+    it('supports simple css selector', () => {
+      const wait = se.reloadUntil('.reload-item');
       return expect(wait, 'when fulfilled', 'to be a', WebElement);
     });
 
-    it('supports text filter', function () {
-      var wait = se.reloadUntil({ css: '.reload-item', text: 'correct text' });
-
+    it('supports text filter', () => {
+      const wait = se.reloadUntil({ css: '.reload-item', text: 'correct text' });
       return expect(wait, 'when fulfilled', 'to be a', WebElement);
     });
 
-    it('supports chained expressions', function () {
-      var wait = se.reloadUntil(function () {
-        return se.find('#delayed_wrapper', 10).find('.reload-item', 10);
-      }, 2000);
-
+    it('supports chained expressions', () => {
+      const wait = se.reloadUntil(
+        () => se.find('#delayed_wrapper', 10).find('.reload-item', 10),
+        2000
+      );
       return expect(wait, 'when fulfilled', 'to be a', WebElement);
     });
 

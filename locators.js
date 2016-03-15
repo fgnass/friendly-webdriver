@@ -1,4 +1,6 @@
-var webdriver = require('selenium-webdriver');
+'use strict';
+
+const webdriver = require('selenium-webdriver');
 
 module.exports = [
   function css(query) {
@@ -16,10 +18,10 @@ module.exports = [
         by: query
       };
     }
-    for (var key in query) {
+    for (const key in query) {
       if (query.hasOwnProperty(key) && webdriver.By.hasOwnProperty(key)) {
         return {
-          description: key + ' ' + query[key],
+          description: `${key} ${query[key]}`,
           by: webdriver.By[key](query[key])
         };
       }
