@@ -1,5 +1,6 @@
 var URL = require('url');
 var webdriver = require('selenium-webdriver');
+var Query = require('./query');
 
 var until = webdriver.until;
 var Condition = until.Condition;
@@ -28,24 +29,12 @@ function all(conds, method) {
 
 var builders = {
 
-  element: function (query) {
-    return new until.WebElementCondition('for ' + query,
-      function (driver) {
-        return driver.locate(query).catch(function () {
-          return undefined;
-        });
-      }
-    );
+  element: function (q) {
+    return Query.create(q).untilOne();
   },
 
   scoped: function (opts) {
-    return new webdriver.until.WebElementCondition('for ' + opts.query,
-      function (driver) {
-        return driver.locate(opts.query, opts.scope).catch(function () {
-          return undefined;
-        });
-      }
-    );
+    return Query.create(opts.query).untilOne(opts.scope);
   },
 
   url: function (url) {
@@ -85,8 +74,7 @@ var builders = {
             });
           });
         }
-
-        return driver.locate(query).catch(function () {
+        return Query.create(query).one(driver).catch(function () {
           driver.navigate().refresh();
           return undefined;
         });

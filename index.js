@@ -8,7 +8,7 @@ var element = require('./element');
 var filters = require('./filters');
 var locators = require('./locators');
 var until = require('./until');
-var query = require('./query');
+var Query = require('./query');
 
 var fn = {
 
@@ -27,54 +27,33 @@ var fn = {
     filters.push(filter);
   },
 
+  _decorateElement: function (el) {
+    return element(el, this);
+  },
+
   actions: function () {
     return new SeActions(this);
   },
 
-  locate: function (q, scope) {
-    var locator = query.locate(q);
-    var filter = query.filter(q);
-    if (!filter) {
-      return (scope || this).findElement(locator);
-    }
-    var elements = (scope || this).findElements(locator);
-
-    var filtered = filter(elements).then(function (filtered) {
-      if (!filtered || !filtered.length) throw new webdriver.error.NoSuchElementError();
-      return filtered[0];
-    });
-    return element(new webdriver.WebElementPromise(this, filtered), this);
-  },
-
-  locateAll: function (q, scope) {
-    var locator = query.locate(q, true);
-    var filter = query.filter(q);
-    var elements = (scope || this).findElements(locator);
-    return filter ? filter(elements) : elements;
-  },
-
   findElement: function (locator) {
-    return element(this.driver.findElement(locator), this);
+    return this._decorateElement(this.driver.findElement(locator));
   },
 
   findElements: function (locator) {
-    var self = this;
+    var decorate = this._decorateElement.bind(this);
     return this.driver.findElements(locator).then(function (elements) {
-      return elements.map(function (raw) {
-        return element(raw, self);
-      });
+      return elements.map(decorate);
     });
   },
 
-  find: function (query, timeout) {
-    return this.wait({ element: query }, (timeout || 2000));
+  find: function (q, timeout) {
+    var query = Query.create(q);
+    return this.wait(query.untilOne(), (timeout || 2000));
   },
 
-  findAll: function (query, timeout) {
-    var self = this;
-    return this.wait({ element: query }, (timeout || 2000)).then(function () {
-      return self.locateAll(query);
-    });
+  findAll: function (q, timeout) {
+    var query = Query.create(q, true);
+    return this.wait(query.untilSome(), (timeout || 2000));
   },
 
   exists: function (locator) {

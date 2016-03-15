@@ -1,23 +1,23 @@
 var assign = require('object-assign');
 var webdriver = require('selenium-webdriver');
 
+var Query = require('./query');
+
 var fn = {
 
-  find: function (query, timeout) {
-    return this.driver_.wait({ scoped: { query: query, scope: this } }, (timeout || 2000));
+  find: function (q, timeout) {
+    var query = Query.create(q);
+    return this.driver_.wait(query.untilOne(this), (timeout || 2000));
   },
 
-  findAll: function (query, timeout) {
-    var scope = this;
-    var selene = this.driver_;
-    timeout = (timeout || 2000);
-    return selene.wait({ scoped: { query: query, scope: scope } }, timeout).then(function () {
-      return selene.locateAll(query, scope);
-    });
+  findAll: function (q, timeout) {
+    var query = Query.create(q, true);
+    return this.driver_.wait(query.untilSome(this), (timeout || 2000));
   },
 
   findElement: function (locator) {
-    return element(this.rawElement.findElement(locator), this.driver_);
+    var el = this.rawElement.findElement(locator);
+    return this.driver_._decorateElement(el);
   },
 
   findElements: function (locator) {

@@ -3,13 +3,62 @@ var webdriver = require('selenium-webdriver');
 var locators = require('./locators');
 var filters = require('./filters');
 
-exports.locate = function (q, all) {
-  var locator = pick(locators, q, all);
-  if (!locator) throw new Error('No locator for ' + q);
-  return locator;
+function Query(q, all) {
+  this.locator = locate(q, all);
+  this.filter = filter(q);
+}
+
+Query.prototype.one = function (scope) {
+  if (!this.filter) return scope.findElement(this.locator);
+
+  var el = this.all(scope).then(function (matches) {
+    if (!matches || !matches.length) throw new webdriver.error.NoSuchElementError();
+    return matches[0];
+  });
+
+  var selene = scope.driver_ || scope;
+  var elementPromise = new webdriver.WebElementPromise(selene, el);
+  return selene._decorateElement(elementPromise);
 };
 
-exports.filter = function (q) {
+Query.prototype.all = function (scope) {
+  var elements = scope.findElements(this.locator);
+  return this.filter ? this.filter(elements) : elements;
+};
+
+Query.prototype.untilOne = function (scope) {
+  var self = this;
+  return new webdriver.until.WebElementCondition('for ' + this,
+    function (driver) {
+      return self.one(scope || driver).catch(function () {
+        return null;
+      });
+    }
+  );
+};
+
+Query.prototype.untilSome = function (scope) {
+  var self = this;
+  return new webdriver.until.Condition('for ' + this,
+    function (driver) {
+      return self.all(scope || driver).then(function (elements) {
+        return elements && elements.length ? elements : null;
+      });
+    }
+  );
+};
+
+function locate(q, all) {
+  if (q.using) return q;
+  var locator = pick(locators, q, all);
+  if (!locator) throw new Error('No locator for ' + q);
+  locator.toString = function () {
+    return this.using + ' ' + this.value;
+  };
+  return locator;
+}
+
+function filter(q) {
   var functions = pickAll(filters, q);
   if (!functions.length) return;
   return function (elements) {
@@ -22,7 +71,7 @@ exports.filter = function (q) {
       });
     });
   };
-};
+}
 
 function pick(functions) {
   var args = Array.prototype.slice.call(arguments, 1);
@@ -41,3 +90,10 @@ function pickAll(functions) {
   })
   .filter(Boolean);
 }
+
+Query.create = function (q, all) {
+  if (q instanceof Query) return q;
+  return new Query(q, all);
+};
+
+module.exports = Query;
