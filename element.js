@@ -1,46 +1,48 @@
-var assign = require('object-assign');
-var webdriver = require('selenium-webdriver');
+'use strict';
 
-var Query = require('./query');
+const assign = require('object-assign');
+const webdriver = require('selenium-webdriver');
 
-var fn = {
+const Query = require('./query');
 
-  find: function (q, timeout) {
-    var query = Query.create(q);
+const fn = {
+
+  find(q, timeout) {
+    const query = Query.create(q);
     return this.driver_.wait(query.untilOne(this), (timeout || 2000));
   },
 
-  findAll: function (q, timeout) {
-    var query = Query.create(q, true);
+  findAll(q, timeout) {
+    const query = Query.create(q, true);
     return this.driver_.wait(query.untilSome(this), (timeout || 2000));
   },
 
-  findElement: function (locator) {
-    var el = this.rawElement.findElement(locator);
+  findElement(locator) {
+    const el = this.rawElement.findElement(locator);
     return this.driver_._decorateElement(el);
   },
 
-  findElements: function (locator) {
-    var selene = this.driver_;
-    return webdriver.promise.map(this.rawElement.findElements(locator), function (raw) {
-      return element(raw, selene);
-    });
+  findElements(locator) {
+    return webdriver.promise.map(
+      this.rawElement.findElements(locator),
+      el => this.driver_._decorateElement(el)
+    );
   },
 
-  attr: function (name) {
+  attr(name) {
     return this.getAttribute(name);
   },
 
-  css: function (prop) {
+  css(prop) {
     return this.getCssValue(prop);
   },
 
-  clear: function () {
+  clear() {
     this.rawElement.clear();
     return this;
   },
 
-  type: function (string) {
+  type(string) {
     this.sendKeys(string);
     return this;
   },
@@ -48,12 +50,13 @@ var fn = {
   /**
    * el.press('ctrl+a', 'ctrl+x')
    */
-  press: function (/* chord1, chord2, ... */) {
-    var args = Array.prototype.slice.call(arguments);
-    var keys = args.map(function (chord) {
-      var keys = chord.split(/[+-](?!$)/).map(function (key) {
-        return webdriver.Key[key.toUpperCase()] || key;
-      });
+  press(/* chord1, chord2, ... */) {
+    const args = Array.prototype.slice.call(arguments);
+
+    const keys = args.map(chord => {
+      const keys = chord.split(/[+-](?!$)/).map(
+        key => webdriver.Key[key.toUpperCase()] || key
+      );
       if (keys.length) {
         return webdriver.Key.chord.apply(webdriver.Key, keys);
       }
@@ -63,37 +66,36 @@ var fn = {
     return this;
   },
 
-  fill: function (attr, values) {
-    if (arguments.length == 1) {
+  fill(attr, values) {
+    if (values === undefined) {
       values = attr;
       attr = 'name';
     }
-    var self = this;
-    Object.keys(values).forEach(function (name) {
-      var f = self.find('[' + attr + '=' + name + ']');
-      f.clear().type(values[name]);
-    });
+    Object.keys(values).forEach(
+      name => this.find(`[${attr}=${name}]`).clear().type(values[name])
+    );
     return this;
   },
 
-  parent: function () {
+  parent() {
     return this.find(webdriver.By.xpath('..'));
   },
 
-  dragDrop: function (target) {
-    var driver = this.getDriver();
-    var self = this;
+  dragDrop(target) {
+    const driver = this.getDriver();
+    const self = this;
     if (typeof target == 'string') target = driver.find(target);
     if (!webdriver.promise.isPromise(target)) {
       target = webdriver.promise.fulfilled(target);
     }
-    target.then(function (location) {
-      return driver.actions()
-        .mouseMove(location) // fix for target elements that are out of view
-        .mouseDown(self)
-        .mouseMove(location)
-        .mouseUp().perform();
-    });
+    target.then(location =>
+      driver.actions()
+      .mouseMove(location) // fix for target elements that are out of view
+      .mouseDown(self)
+      .mouseMove(location)
+      .mouseUp()
+      .perform()
+    );
     return this;
   }
 

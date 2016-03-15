@@ -1,73 +1,71 @@
-var URL = require('url');
-var assign = require('object-assign');
-var webdriver = require('selenium-webdriver');
+'use strict';
 
-var SeActions = require('./actions');
-var build = require('./build');
-var element = require('./element');
-var filters = require('./filters');
-var locators = require('./locators');
-var until = require('./until');
-var Query = require('./query');
+const URL = require('url');
+const assign = require('object-assign');
+const webdriver = require('selenium-webdriver');
 
-var fn = {
+const SeActions = require('./actions');
+const build = require('./build');
+const element = require('./element');
+const filters = require('./filters');
+const locators = require('./locators');
+const until = require('./until');
+const Query = require('./query');
 
-  use: function (plugin) {
+const fn = {
+
+  use(plugin) {
     plugin(this);
     return this;
   },
 
-  addLocator: function (locator) {
+  addLocator(locator) {
     // TODO keep per instance list of locators
     locators.push(locator);
   },
 
-  addFilter: function (filter) {
+  addFilter(filter) {
     // TODO keep per instance list of filters
     filters.push(filter);
   },
 
-  _decorateElement: function (el) {
+  _decorateElement(el) {
     return element(el, this);
   },
 
-  actions: function () {
+  actions() {
     return new SeActions(this);
   },
 
-  findElement: function (locator) {
+  findElement(locator) {
     return this._decorateElement(this.driver.findElement(locator));
   },
 
-  findElements: function (locator) {
-    var decorate = this._decorateElement.bind(this);
-    return this.driver.findElements(locator).then(function (elements) {
-      return elements.map(decorate);
-    });
+  findElements(locator) {
+    return this.driver.findElements(locator).then(
+      elements => elements.map(el => this._decorateElement(el))
+    );
   },
 
-  find: function (q, timeout) {
-    var query = Query.create(q);
-    return this.wait(query.untilOne(), (timeout || 2000));
+  find(selector, timeout) {
+    return this.wait(Query.create(selector).untilOne(), timeout || 2000);
   },
 
-  findAll: function (q, timeout) {
-    var query = Query.create(q, true);
-    return this.wait(query.untilSome(), (timeout || 2000));
+  findAll(selector, timeout) {
+    return this.wait(Query.create(selector).untilSome(), timeout || 2000);
   },
 
-  exists: function (locator) {
-    if (typeof locator == 'string') {
-      locator = { css: locator };
-    }
-    return this.isElementPresent(locator);
+  exists(selector) {
+    return this.findAll(selector, 1)
+      .then(res => !!(res && res.length))
+      .catch(() => false);
   },
 
-  click: function (selector) {
+  click(selector) {
     return this.find(selector).click();
   },
 
-  wait: function (cond, timeout, message) {
+  wait(cond, timeout, message) {
     if (!webdriver.promise.isPromise(cond)
       && !(cond instanceof webdriver.until.Condition)
       && typeof cond != 'function') {
@@ -75,70 +73,60 @@ var fn = {
       cond = until(cond);
     }
 
-    var ret = this.driver.wait.call(this, cond, timeout, message);
+    const ret = this.driver.wait.call(this, cond, timeout, message);
     if (ret instanceof webdriver.WebElementPromise) {
-      ret = element(ret, this);
+      return this._decorateElement(ret);
     }
     return ret;
   },
 
-  then: function () {
-    var promise = this.sleep(0);
-    return promise.then.apply(promise, arguments);
+  then(cb) {
+    return this.sleep(0).then(cb);
   },
 
-  goto: function (url) {
-    var self = this;
-    var base = this.opts.base || '';
-    var target = URL.resolve(base, url);
+  goto(url) {
+    const base = this.opts.base || '';
+    const target = URL.resolve(base, url);
 
     if (this.opts.auth && !this.authenticated) {
-      var temp = URL.parse(target);
-      temp.auth = this.opts.auth.user + ':' + this.opts.auth.pass;
+      const temp = URL.parse(target);
+      temp.auth = [this.opts.auth.user, this.opts.auth.pass].join(':');
       this.authenticated = true;
-      this.navigate().to(URL.format(temp)).then(function () {
-        self.navigate().to(target);
-      });
+      this.navigate().to(URL.format(temp)).then(() => this.navigate().to(target));
     } else {
       this.navigate().to(target);
     }
   },
 
-  fill: function (attr, values) {
-    if (arguments.length == 1) {
+  fill(attr, values) {
+    if (values === undefined) {
       values = attr;
       attr = 'name';
     }
-    var self = this;
-    Object.keys(values).forEach(function (name) {
-      var f = self.find('[' + attr + '=' + name + ']');
-      f.clear().type(values[name]);
+    Object.keys(values).forEach(name => {
+      this.find(`[${attr}=${name}]`).clear().type(values[name]);
     });
   },
 
-  reloadUntil: function (query, timeout) {
-    return this.wait({ reloadUntil: query }, (timeout || 2000));
+  reloadUntil(query, timeout) {
+    return this.wait({ reloadUntil: query }, timeout || 2000);
   },
 
-  getLogMessages: function (type, level) {
-    var t = webdriver.logging.Type[type.toUpperCase()];
-    if (!t) throw new Error('No such log type: ' + type);
-    return this.manage().logs().get(t).then(function (entries) {
-      return entries
-        .filter(function (entry) {
-          return !level || level.toUpperCase() == entry.level.name;
-        })
-        .map(function (entry) {
-          return entry.message;
-        });
-    });
+  getLogMessages(type, level) {
+    const t = webdriver.logging.Type[type.toUpperCase()];
+    if (!t) throw new Error(`No such log type: ${type}`);
+    return this.manage().logs().get(t).then(
+      entries => entries
+        .filter(entry => !level || level.toUpperCase() == entry.level.name)
+        .map(entry => entry.message)
+    );
   }
 };
 
 function se(driver, opts) {
   return assign(Object.create(driver), fn, {
     opts: opts || {},
-    driver: driver
+    driver
   });
 }
 

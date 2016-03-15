@@ -1,9 +1,11 @@
-var URL = require('url');
-var webdriver = require('selenium-webdriver');
-var Query = require('./query');
+'use strict';
 
-var until = webdriver.until;
-var Condition = until.Condition;
+const URL = require('url');
+const webdriver = require('selenium-webdriver');
+const Query = require('./query');
+
+const until = webdriver.until;
+const Condition = until.Condition;
 
 function all(conds, method) {
   if (conds.length == 1) {
@@ -11,64 +13,61 @@ function all(conds, method) {
   }
   if (!method) method = 'every';
 
-  var descriptions = conds.map(function (c) {
-    return c.description();
-  });
+  const descriptions = conds.map(c => c.description());
+  const desc = [`for ${method} of these:`].concat(descriptions).join('\n* ');
 
-  var desc = ['for ' + method + ' of these:'].concat(descriptions).join('\n* ');
-
-  return new Condition(desc, function (driver) {
-    return webdriver.promise.all(conds.map(function (cond) {
-      return cond.fn(driver);
-    }))
-    .then(function (values) {
-      return values[method](Boolean);
-    });
-  });
+  return new Condition(desc, driver =>
+    webdriver.promise.all(conds.map(cond => cond.fn(driver)))
+    .then(values => values[method](Boolean))
+  );
 }
 
-var builders = {
+const builders = {
 
-  element: function (q) {
+  element(q) {
     return Query.create(q).untilOne();
   },
 
-  scoped: function (opts) {
+  scoped(opts) {
     return Query.create(opts.query).untilOne(opts.scope);
   },
 
-  url: function (url) {
-    return new Condition('for URL to become ' + url, function (driver) {
-      return driver.getCurrentUrl().then(function (current) {
-        return URL.resolve(current, url) == current;
-      });
-    });
+  url(url) {
+    return new Condition(`for URL to become ${url}`,
+      driver => driver.getCurrentUrl().then(
+        current => URL.resolve(current, url) == current
+      )
+    );
   },
 
-  title: function (title) {
+  title(title) {
     if (title instanceof RegExp) return until.titleMatches(title);
     return until.titles(title);
   },
 
-  unless: function (spec) {
-    var cond = build(spec);
-    return new Condition('unless ' + spec, function (driver) {
-      return new webdriver.promise.Promise(function (res, rej) {
-        cond.fn(driver).then(function (value) {
-          var err = new Error(cond.description());
-          err.cause = value;
-          err.fn = cond.fn;
-          rej(err);
-        });
-      });
-    });
+  unless(spec) {
+    const cond = build(spec);
+    return new Condition(`unless ${spec}`,
+      driver => new webdriver.promise.Promise(
+        (res, rej) => {
+          cond.fn(driver).then(
+            value => {
+              const err = new Error(cond.description());
+              err.cause = value;
+              err.fn = cond.fn;
+              rej(err);
+            }
+          );
+        }
+      )
+    );
   },
 
-  reloadUntil: function (query) {
-    return new until.WebElementCondition('for ' + query,
-      function (driver) {
+  reloadUntil(query) {
+    return new until.WebElementCondition(`for ${query}`,
+      driver => {
         function reload(promise) {
-          return promise.catch(function () {
+          return promise.catch(() => {
             driver.navigate().refresh();
           });
         }
@@ -84,8 +83,8 @@ function build(spec) {
   if (Array.isArray(spec)) return all(spec.map(build), 'some');
 
   // if an object is given, wait until ALL props are satisfied
-  return all(Object.keys(spec).map(function (name) {
-    if (!builders[name]) throw Error('no such condition:' + name);
+  return all(Object.keys(spec).map(name => {
+    if (!builders[name]) throw Error(`no such condition: ${name}`);
     return builders[name](spec[name]);
   }));
 }
