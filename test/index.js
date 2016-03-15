@@ -56,6 +56,23 @@ describe('index', function () {
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
+      it('matches text using regular expressions', function () {
+        return se.find({ css: '.with_text', text: /correct/ }).then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
+        });
+      });
+
+      it('matches text using functions', function () {
+        function match(t) {
+          return t == 'correct text';
+        }
+        return se.find({ css: '.with_text', text: match }).then(function (el) {
+          expect(el, 'to be a', WebElement);
+          return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
+        });
+      });
+
       it('filters visible elements', function () {
         return se.find({ css: '.visibility', visible: true }).then(function (el) {
           expect(el, 'to be a', WebElement);
