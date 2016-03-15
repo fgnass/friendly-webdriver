@@ -49,7 +49,6 @@ Query.prototype.untilSome = function (scope) {
 };
 
 function locate(q, all) {
-  if (q.using) return q;
   var locator = pick(locators, q, all);
   if (!locator) throw new Error('No locator for ' + q);
   locator.toString = function () {
