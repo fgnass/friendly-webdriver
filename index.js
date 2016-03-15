@@ -8,6 +8,7 @@ var element = require('./element');
 var filters = require('./filters');
 var locators = require('./locators');
 var until = require('./until');
+var query = require('./query');
 
 var fn = {
 
@@ -17,47 +18,39 @@ var fn = {
   },
 
   addLocator: function (locator) {
-    this.locators.push(locator);
+    // TODO keep per instance list of locators
+    locators.push(locator);
   },
 
   addFilter: function (filter) {
-    this.filters.push(filter);
+    // TODO keep per instance list of filters
+    filters.push(filter);
   },
 
   actions: function () {
     return new SeActions(this);
   },
 
-  locate: function (query, scope) {
-    var locator = pick(this.locators, query);
-    var filters = pickAll(this.filters, query);
-    if (!locator) throw new Error('No locator for ' + query);
-    if (!filters.length) {
+  locate: function (q, scope) {
+    var locator = query.locate(q);
+    var filter = query.filter(q);
+    if (!filter) {
       return (scope || this).findElement(locator);
     }
     var elements = (scope || this).findElements(locator);
 
-    var filtered = elements.then(function (elements) {
-      return applyFilters(elements, filters);
-    })
-    .then(function (filtered) {
+    var filtered = filter(elements).then(function (filtered) {
       if (!filtered || !filtered.length) throw new webdriver.error.NoSuchElementError();
       return filtered[0];
     });
     return element(new webdriver.WebElementPromise(this, filtered), this);
   },
 
-  locateAll: function (query, scope) {
-    var locator = pick(this.locators, query, true);
-    var filters = pickAll(this.filters, query);
-
+  locateAll: function (q, scope) {
+    var locator = query.locate(q, true);
+    var filter = query.filter(q);
     var elements = (scope || this).findElements(locator);
-
-    if (!filters.length) return elements;
-
-    return elements.then(function (elements) {
-      return applyFilters(elements, filters);
-    });
+    return filter ? filter(elements) : elements;
   },
 
   findElement: function (locator) {
@@ -166,9 +159,7 @@ var fn = {
 function se(driver, opts) {
   return assign(Object.create(driver), fn, {
     opts: opts || {},
-    driver: driver,
-    locators: locators.slice(),
-    filters: filters.slice()
+    driver: driver
   });
 }
 
@@ -184,35 +175,6 @@ function selene(driver, opts) {
 selene.addLocator = function (locator) {
   locators.push(locator);
 };
-
-function pick(functions) {
-  var args = Array.prototype.slice.call(arguments, 1);
-  var ret;
-  functions.some(function (fn) {
-    ret = fn.apply(null, args);
-    return ret;
-  });
-  return ret;
-}
-
-function pickAll(functions) {
-  var args = Array.prototype.slice.call(arguments, 1);
-  return functions.map(function (fn) {
-    return fn.apply(null, args);
-  })
-  .filter(Boolean);
-}
-
-function applyFilters(elements, filters) {
-  return webdriver.promise.filter(elements, function (el) {
-    return webdriver.promise.map(filters, function (filter) {
-      return filter(el);
-    })
-    .then(function (filterResults) {
-      return filterResults.every(Boolean);
-    });
-  });
-}
 
 module.exports = selene;
 module.exports.webdriver = webdriver;
