@@ -3,13 +3,30 @@ var webdriver = require('selenium-webdriver');
 var locators = require('./locators');
 var filters = require('./filters');
 
-function Query(q, all) {
-  this.locator = locate(q, all);
-  this.filter = filter(q);
+function Query(q) {
+  var locator = pick(locators, q);
+  if (!locator) throw new Error('No locator for ' + q);
+
+  this.by = locator.by;
+  this.description = locator.description;
+
+  this.filters = pickAll(filters, q);
+
+  var filterDescription = this.filters.map(function (f) {
+    return f.description;
+  }).join(' and ');
+
+  if (filterDescription) {
+    this.descripion += ' (' + filterDescription + ')';
+  }
 }
 
+Query.prototype.toString = function () {
+  return this.description;
+};
+
 Query.prototype.one = function (scope) {
-  if (!this.filter) return scope.findElement(this.locator);
+  if (!this.filter) return scope.findElement(this.by);
 
   var el = this.all(scope).then(function (matches) {
     if (!matches || !matches.length) throw new webdriver.error.NoSuchElementError();
@@ -22,8 +39,21 @@ Query.prototype.one = function (scope) {
 };
 
 Query.prototype.all = function (scope) {
-  var elements = scope.findElements(this.locator);
+  var elements = scope.findElements(this.by);
   return this.filter ? this.filter(elements) : elements;
+};
+
+Query.prototype.filter = function (elements) {
+  var filters = this.filters;
+  if (!filters.length) return elements;
+  return webdriver.promise.filter(elements, function (el) {
+    return webdriver.promise.map(filters, function (filter) {
+      return filter.test(el);
+    })
+    .then(function (filterResults) {
+      return filterResults.every(Boolean);
+    });
+  });
 };
 
 Query.prototype.untilOne = function (scope) {
@@ -47,30 +77,6 @@ Query.prototype.untilSome = function (scope) {
     }
   );
 };
-
-function locate(q, all) {
-  var locator = pick(locators, q, all);
-  if (!locator) throw new Error('No locator for ' + q);
-  locator.toString = function () {
-    return this.using + ' ' + this.value;
-  };
-  return locator;
-}
-
-function filter(q) {
-  var functions = pickAll(filters, q);
-  if (!functions.length) return;
-  return function (elements) {
-    return webdriver.promise.filter(elements, function (el) {
-      return webdriver.promise.map(functions, function (filter) {
-        return filter(el);
-      })
-      .then(function (filterResults) {
-        return filterResults.every(Boolean);
-      });
-    });
-  };
-}
 
 function pick(functions) {
   var args = Array.prototype.slice.call(arguments, 1);

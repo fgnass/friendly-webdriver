@@ -51,9 +51,10 @@ describe('index', function () {
       });
 
       it('raises an error if no element with the given text is found', function () {
-        var elPromise = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
-
-        return expect(elPromise, 'when rejected', 'to be a', Error);
+        var el = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
+        return expect(el, 'when rejected', 'to have message',
+          /Waiting for css \.occurs_once/
+        );
       });
 
       it('matches text using regular expressions', function () {
@@ -177,7 +178,9 @@ describe('index', function () {
         var wait = se.wait({
           element: { css: '.exists_soon', text: 'wrong text' }
         }, 600);
-        return expect(wait, 'when rejected', 'to be a', Error);
+        return expect(wait, 'when rejected', 'to have message',
+          /Waiting for css \.exists_soon/
+        );
       });
     });
 
