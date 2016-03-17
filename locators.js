@@ -6,7 +6,7 @@ module.exports = [
   function css(query) {
     if (typeof query === 'string') {
       return {
-        desciption: query,
+        description: `css ${query}`,
         by: webdriver.By.css(query)
       };
     }

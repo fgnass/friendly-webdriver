@@ -32,13 +32,13 @@ describe('index', function () {
     });
 
     it('raises an error if the element is not present', () => {
-      const el = se.find('.not_available', 200);
+      const el = se.find('.not_available', { timeout: 200 });
       return expect(el, 'when rejected', 'to be an', Error);
     });
 
     describe('providing a filter', () => {
       it('finds the first element with matching CSS selector and text', () =>
-        se.find({ css: '.with_text', text: 'correct text' })
+        se.find('.with_text', { text: 'correct text' })
         .then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
@@ -46,19 +46,19 @@ describe('index', function () {
       );
 
       it('raises an error if the CSS selector is not present', () => {
-        const elPromise = se.find({ css: '.not_available', text: 'some_text' }, 200);
+        const elPromise = se.find('.not_available', { text: 'some_text', timeout: 200 });
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
       it('raises an error if no element with the given text is found', () => {
-        const el = se.find({ css: '.occurs_once', text: 'text_does_not_exist' }, 200);
+        const el = se.find('.occurs_once', { text: 'text_does_not_exist', timeout: 200 });
         return expect(el, 'when rejected', 'to have message',
           /Waiting for css \.occurs_once/
         );
       });
 
       it('matches text using regular expressions', () =>
-        se.find({ css: '.with_text', text: /correct/ }).then(el => {
+        se.find('.with_text', { text: /correct/ }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
         })
@@ -68,25 +68,48 @@ describe('index', function () {
         function match(t) {
           return t == 'correct text';
         }
-        return se.find({ css: '.with_text', text: match }).then(el => {
+        return se.find('.with_text', { text: match }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getText(), 'when fulfilled', 'to be', 'correct text');
         });
       });
 
       it('filters visible elements', () =>
-        se.find({ css: '.visibility', visible: true }).then(el => {
+        se.find('.visibility', { visible: true }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getInnerHtml(), 'to be fulfilled with', 'visible');
         })
       );
 
       it('filters invisible elements', () =>
-        se.find({ css: '.visibility', visible: false }).then(el => {
+        se.find('.visibility', { visible: false }).then(el => {
           expect(el, 'to be a', WebElement);
           return expect(el.getInnerHtml(), 'to be fulfilled with', 'invisible');
         })
       );
+    });
+
+    describe('having to wait', () => {
+      // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
+      it('waits for the respective element to appear in the DOM', () => {
+        se.find('#delayed_wrapper').click();
+        const wait = se.find('.exists_soon', { timeout: 600 });
+        return expect(wait, 'when fulfilled', 'to be a', WebElement);
+      });
+
+      it('works with an additional text filter', () => {
+        se.find('#delayed_wrapper').click();
+        const wait = se.find('.exists_soon', { text: 'correct text', timeout: 600 });
+        return expect(wait, 'when fulfilled', 'to be a', WebElement);
+      });
+
+      it('fails with the wrong text', () => {
+        se.find('#delayed_wrapper').click();
+        const wait = se.find('.exists_soon', { text: 'wrong text', timeout: 600 });
+        return expect(wait, 'when rejected', 'to have message',
+          /Waiting for css \.exists_soon/
+        );
+      });
     });
   });
 
@@ -157,33 +180,6 @@ describe('index', function () {
       });
     });
 
-    describe('when the condition is a css selector', () => {
-      // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
-      it('waits for the respective element to appear in the DOM', () => {
-        se.find('#delayed_wrapper').click();
-        const wait = se.wait({ element: '.exists_soon' }, 600);
-        return expect(wait, 'when fulfilled', 'to be a', WebElement);
-      });
-
-      it('works with an additional text filter', () => {
-        se.find('#delayed_wrapper').click();
-        const wait = se.wait({
-          element: { css: '.exists_soon', text: 'correct text' }
-        }, 600);
-        return expect(wait, 'when fulfilled', 'to be a', WebElement);
-      });
-
-      it('fails with the wrong text', () => {
-        se.find('#delayed_wrapper').click();
-        const wait = se.wait({
-          element: { css: '.exists_soon', text: 'wrong text' }
-        }, 600);
-        return expect(wait, 'when rejected', 'to have message',
-          /Waiting for css \.exists_soon/
-        );
-      });
-    });
-
     describe('when the condition is a function', () => {
       it('waits for the function to be finished', () => {
         let i = 0;
@@ -226,7 +222,7 @@ describe('index', function () {
 
     it('supports chained expressions', () => {
       const wait = se.reloadUntil(
-        () => se.find('#delayed_wrapper', 10).find('.reload-item', 10),
+        () => se.find('#delayed_wrapper', { timeout: 10 }).find('.reload-item', { timeout: 10 }),
         2000
       );
       return expect(wait, 'when fulfilled', 'to be a', WebElement);

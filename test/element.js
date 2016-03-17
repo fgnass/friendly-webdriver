@@ -34,7 +34,7 @@ describe('element', function () {
     });
 
     it('finds sub-elements by text', () => {
-      const el = se.find('.outer').find({ css: '.inner', text: 'lorem dipsum' });
+      const el = se.find('.outer').find('.inner', { text: 'lorem dipsum' });
 
       expect(el, 'when fulfilled', 'to be a', WebElement);
       return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');

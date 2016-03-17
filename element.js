@@ -7,14 +7,14 @@ const Query = require('./query');
 
 const fn = {
 
-  find(q, timeout) {
-    const query = Query.create(q);
-    return this.driver_.wait(query.untilOne(this), (timeout || 2000));
+  find(selector, opts) {
+    const query = Query.create(selector, opts);
+    return this.driver_.wait(query.untilOne(this), query.timeout);
   },
 
-  findAll(q, timeout) {
-    const query = Query.create(q, true);
-    return this.driver_.wait(query.untilSome(this), (timeout || 2000));
+  findAll(selector, opts) {
+    const query = Query.create(selector, opts);
+    return this.driver_.wait(query.untilSome(this), query.timeout);
   },
 
   findElement(locator) {

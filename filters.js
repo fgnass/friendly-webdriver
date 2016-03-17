@@ -5,7 +5,7 @@ module.exports = [
     if (query.text) {
       const test = matchText(query.text);
       return {
-        desciption: test.description,
+        description: test.description,
         test(el) {
           return el.getText().then(test.test);
         }
@@ -27,20 +27,20 @@ module.exports = [
 function matchText(expected) {
   if (typeof expected == 'function') {
     return {
-      desciption: `passing ${expected.name || 'function'}()`,
+      description: `passing ${expected.name || 'function'}()`,
       test: expected
     };
   }
   if (expected instanceof RegExp) {
     return {
-      desciption: `matching ${expected.toString()}`,
+      description: `matching ${expected.toString()}`,
       test(text) {
         return expected.test(text);
       }
     };
   }
   return {
-    decription: `containing ${JSON.stringify(expected)}`,
+    description: `containing ${JSON.stringify(expected)}`,
     test(text) {
       return ~text.indexOf(expected);
     }

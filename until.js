@@ -24,14 +24,6 @@ function all(conds, method) {
 
 const builders = {
 
-  element(q) {
-    return Query.create(q).untilOne();
-  },
-
-  scoped(opts) {
-    return Query.create(opts.query).untilOne(opts.scope);
-  },
-
   url(url) {
     return new Condition(`for URL to become ${url}`,
       driver => driver.getCurrentUrl().then(

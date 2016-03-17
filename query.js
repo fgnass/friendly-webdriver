@@ -5,16 +5,18 @@ const webdriver = require('selenium-webdriver');
 const locators = require('./locators');
 const filters = require('./filters');
 
-function Query(q) {
-  const locator = pick(locators, q);
-  if (!locator) throw new Error(`No locator for ${q}`);
+function Query(selector, opts) {
+  const locator = pick(locators, selector);
+  if (!locator) throw new Error(`No locator for ${selector}`);
 
   this.by = locator.by;
   this.description = locator.description;
-
-  this.filters = pickAll(filters, q);
-  const filterDescription = this.filters.map(f => f.description).join(' and ');
-  if (filterDescription) this.descripion += ` (${filterDescription})`;
+  this.timeout = opts && opts.timeout || 2000;
+  if (opts) {
+    this.filters = pickAll(filters, opts);
+    const filterDescription = this.filters.map(f => f.description).join(' and ');
+    if (filterDescription) this.description += ` (${filterDescription})`;
+  }
 }
 
 Query.prototype.toString = function () {
@@ -22,7 +24,7 @@ Query.prototype.toString = function () {
 };
 
 Query.prototype.one = function (scope) {
-  if (!this.filters.length) return scope.findElement(this.by);
+  if (!this.filters) return scope.findElement(this.by);
   const el = this.all(scope).then(matches => {
     if (!matches || !matches.length) throw new webdriver.error.NoSuchElementError();
     return matches[0];
@@ -35,12 +37,12 @@ Query.prototype.one = function (scope) {
 
 Query.prototype.all = function (scope) {
   const elements = scope.findElements(this.by);
-  return this.filters.length ? this.filter(elements) : elements;
+  return this.filters ? this.filter(elements) : elements;
 };
 
 Query.prototype.filter = function (elements) {
   const filters = this.filters;
-  if (!filters.length) return elements;
+  if (!filters) return elements;
   return webdriver.promise.filter(elements, el =>
     webdriver.promise.map(filters,
       f => f.test(el)
@@ -76,9 +78,9 @@ function pickAll(functions, query) {
   return functions.map(fn => fn(query)).filter(Boolean);
 }
 
-Query.create = function (q, all) {
+Query.create = function (q, opts) {
   if (q instanceof Query) return q;
-  return new Query(q, all);
+  return new Query(q, opts);
 };
 
 module.exports = Query;

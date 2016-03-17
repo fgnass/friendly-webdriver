@@ -47,22 +47,23 @@ const fn = {
     );
   },
 
-  find(selector, timeout) {
-    return this.wait(Query.create(selector).untilOne(), timeout || 2000);
+  find(selector, opts) {
+    const query = Query.create(selector, opts);
+    return this.wait(query.untilOne(), query.timeout);
   },
 
-  findAll(selector, timeout) {
-    return this.wait(Query.create(selector).untilSome(), timeout || 2000);
+  findAll(selector, opts) {
+    const query = Query.create(selector, opts);
+    return this.wait(query.untilSome(), query.timeout);
   },
 
-  exists(selector) {
-    return this.findAll(selector, 1)
-      .then(res => !!(res && res.length))
-      .catch(() => false);
+  exists(selector, opts) {
+    const query = Query.create(selector, opts);
+    return this.wait(query.untilOne(), 1).then(res => !!res).catch(() => false);
   },
 
-  click(selector) {
-    return this.find(selector).click();
+  click(selector, filter) {
+    return this.find(selector, filter).click();
   },
 
   wait(cond, timeout, message) {
@@ -109,6 +110,7 @@ const fn = {
   },
 
   reloadUntil(query, timeout) {
+    // FIXME add filter!
     return this.wait({ reloadUntil: query }, timeout || 2000);
   },
 
