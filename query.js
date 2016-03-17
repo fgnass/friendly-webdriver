@@ -22,8 +22,7 @@ Query.prototype.toString = function () {
 };
 
 Query.prototype.one = function (scope) {
-  if (!this.filter) return scope.findElement(this.by);
-
+  if (!this.filters.length) return scope.findElement(this.by);
   const el = this.all(scope).then(matches => {
     if (!matches || !matches.length) throw new webdriver.error.NoSuchElementError();
     return matches[0];
@@ -36,7 +35,7 @@ Query.prototype.one = function (scope) {
 
 Query.prototype.all = function (scope) {
   const elements = scope.findElements(this.by);
-  return this.filter ? this.filter(elements) : elements;
+  return this.filters.length ? this.filter(elements) : elements;
 };
 
 Query.prototype.filter = function (elements) {
