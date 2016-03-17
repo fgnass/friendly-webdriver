@@ -1,10 +1,9 @@
 'use strict';
 
-const webdriver = require('selenium-webdriver');
 const expect = require('unexpected');
 const selene = require('..');
 
-const WebElement = webdriver.WebElement;
+const WebElement = selene.webdriver.WebElement;
 
 const se = selene({
   browser: 'phantomjs',
