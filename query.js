@@ -11,8 +11,8 @@ function Query(selector, opts) {
 
   this.by = locator.by;
   this.description = locator.description;
-  this.timeout = opts && opts.timeout || 2000;
-  if (opts) {
+  this.opts = opts;
+  if (typeof opts == 'object') {
     this.filters = pickAll(filters, opts);
     const filterDescription = this.filters.map(f => f.description).join(' and ');
     if (filterDescription) this.description += ` (${filterDescription})`;
@@ -24,20 +24,27 @@ Query.prototype.toString = function () {
 };
 
 Query.prototype.one = function (scope) {
-  if (!this.filters) return scope.findElement(this.by);
-  const el = this.all(scope).then(matches => {
-    if (!matches || !matches.length) throw new webdriver.error.NoSuchElementError();
-    return matches[0];
-  });
-
   const selene = scope.driver_ || scope;
+
+  const el = selene.implicitlyWait(this.opts, () => {
+    if (!this.filters) return scope.findElement(this.by);
+    return this.all(scope).then(matches => {
+      if (!matches || !matches.length) {
+        throw new webdriver.error.NoSuchElementError(this.description);
+      }
+      return matches[0];
+    });
+  });
   const elementPromise = new webdriver.WebElementPromise(selene, el);
   return selene._decorateElement(elementPromise);
 };
 
 Query.prototype.all = function (scope) {
-  const elements = scope.findElements(this.by);
-  return this.filters ? this.filter(elements) : elements;
+  const selene = scope.driver_ || scope;
+  return selene.implicitlyWait(this.opts, () => {
+    const elements = scope.findElements(this.by);
+    return this.filters ? this.filter(elements) : elements;
+  });
 };
 
 Query.prototype.filter = function (elements) {

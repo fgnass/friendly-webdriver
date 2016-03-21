@@ -3,6 +3,7 @@
 const URL = require('url');
 const assign = require('object-assign');
 const webdriver = require('selenium-webdriver');
+const Timeouts = require('selenium-webdriver/lib/webdriver').Timeouts;
 
 const SeActions = require('./actions');
 const build = require('./build');
@@ -11,6 +12,12 @@ const filters = require('./filters');
 const locators = require('./locators');
 const until = require('./until');
 const Query = require('./query');
+
+const _implicitlyWait = Timeouts.prototype.implicitlyWait;
+Timeouts.prototype.implicitlyWait = function (ms) {
+  this.driver_._implicitlyWaitTimeout = ms;
+  return _implicitlyWait.call(this, ms);
+};
 
 const fn = {
 
@@ -47,19 +54,28 @@ const fn = {
     );
   },
 
+  implicitlyWait(opts, cb) {
+    const timeout = typeof opts == 'number' ? opts : opts && opts.timeout || 0;
+    const prevTimeout = this._implicitlyWaitTimeout || 0;
+
+    if (timeout == prevTimeout) return cb();
+
+    this.manage().timeouts().implicitlyWait(timeout);
+    const result = cb();
+    this.manage().timeouts().implicitlyWait(prevTimeout);
+    return result;
+  },
+
   find(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilOne(), query.timeout);
+    return Query.create(selector, opts).one(this);
   },
 
   findAll(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilSome(), query.timeout);
+    return Query.create(selector, opts).all(this);
   },
 
   exists(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilOne(), 1).then(res => !!res).catch(() => false);
+    return Query.create(selector, opts).one(this).then(res => !!res).catch(() => false);
   },
 
   click(selector, filter) {
