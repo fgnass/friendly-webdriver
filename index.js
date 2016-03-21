@@ -19,7 +19,7 @@ Timeouts.prototype.implicitlyWait = function (ms) {
   return _implicitlyWait.call(this, ms);
 };
 
-const fn = {
+const seleneMixin = {
 
   use(plugin) {
     plugin(this);
@@ -155,8 +155,8 @@ function getTimeout(opts) {
   return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
 }
 
-function se(driver, opts) {
-  return assign(Object.create(driver), fn, {
+function decorateDriver(driver, opts) {
+  return assign(Object.create(driver), seleneMixin, {
     opts: opts || {},
     driver
   });
@@ -164,11 +164,11 @@ function se(driver, opts) {
 
 function selene(driver, opts) {
   if (driver && driver instanceof webdriver.WebDriver) {
-    return se(driver, opts);
+    return decorateDriver(driver, opts);
   }
   opts = driver || {};
   if (typeof opts == 'string') opts = { base: opts };
-  return se(build(opts), opts);
+  return decorateDriver(build(opts), opts);
 }
 
 selene.addLocator = function (locator) {
