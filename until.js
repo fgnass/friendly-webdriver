@@ -2,7 +2,6 @@
 
 const URL = require('url');
 const webdriver = require('selenium-webdriver');
-const Query = require('./query');
 
 const until = webdriver.until;
 const Condition = until.Condition;
@@ -52,20 +51,6 @@ const builders = {
           );
         }
       )
-    );
-  },
-
-  reloadUntil(query) {
-    return new until.WebElementCondition(`for ${query}`,
-      driver => {
-        function reload(promise) {
-          return promise.catch(() => {
-            driver.navigate().refresh();
-          });
-        }
-        if (typeof query === 'function') return reload(query());
-        return reload(Query.create(query).one(driver));
-      }
     );
   }
 };

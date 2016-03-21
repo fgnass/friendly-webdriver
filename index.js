@@ -125,9 +125,20 @@ const fn = {
     });
   },
 
-  reloadUntil(query, timeout) {
-    // FIXME add filter!
-    return this.wait({ reloadUntil: query }, timeout || 2000);
+  reloadUntil(query, opts) {
+    const condition = new webdriver.until.WebElementCondition(`for ${query}`,
+      driver => {
+        function reload(promise) {
+          return promise.catch(() => {
+            driver.navigate().refresh();
+          });
+        }
+        if (typeof query === 'function') return reload(query());
+        return reload(Query.create(query, opts).one(driver));
+      }
+    );
+    const timeout = typeof opts == 'number' ? opts : opts && opts.timeout || 0;
+    return this.wait(condition, timeout);
   },
 
   getLogMessages(type, level) {
