@@ -32,7 +32,7 @@ describe('index', function () {
     });
 
     it('raises an error if the element is not present', () => {
-      const el = se.find('.not_available', { timeout: 200 });
+      const el = se.find('.not_available');
       return expect(el, 'when rejected', 'to be an', Error);
     });
 
@@ -46,14 +46,14 @@ describe('index', function () {
       );
 
       it('raises an error if the CSS selector is not present', () => {
-        const elPromise = se.find('.not_available', { text: 'some_text', timeout: 200 });
+        const elPromise = se.find('.not_available', { text: 'some_text' });
         return expect(elPromise, 'when rejected', 'to be a', Error);
       });
 
       it('raises an error if no element with the given text is found', () => {
-        const el = se.find('.occurs_once', { text: 'text_does_not_exist', timeout: 200 });
+        const el = se.find('.occurs_once', { text: 'text_does_not_exist' });
         return expect(el, 'when rejected', 'to have message',
-          /Waiting for css \.occurs_once/
+          'css .occurs_once (containing "text_does_not_exist")'
         );
       });
 
@@ -93,7 +93,7 @@ describe('index', function () {
       // clicking on #delayed_wrapper, makes .exists_soon appear after 500 milliseconds
       it('waits for the respective element to appear in the DOM', () => {
         se.find('#delayed_wrapper').click();
-        const wait = se.find('.exists_soon', { timeout: 600 });
+        const wait = se.find('.exists_soon', 600);
         return expect(wait, 'when fulfilled', 'to be a', WebElement);
       });
 
@@ -107,7 +107,7 @@ describe('index', function () {
         se.find('#delayed_wrapper').click();
         const wait = se.find('.exists_soon', { text: 'wrong text', timeout: 600 });
         return expect(wait, 'when rejected', 'to have message',
-          /Waiting for css \.exists_soon/
+          'css .exists_soon (containing "wrong text")'
         );
       });
     });
@@ -221,10 +221,7 @@ describe('index', function () {
     });
 
     it('supports chained expressions', () => {
-      const wait = se.reloadUntil(
-        () => se.find('#delayed_wrapper', { timeout: 10 }).find('.reload-item', { timeout: 10 }),
-        2000
-      );
+      const wait = se.reloadUntil(() => se.find('#delayed_wrapper').find('.reload-item'), 2000);
       return expect(wait, 'when fulfilled', 'to be a', WebElement);
     });
 

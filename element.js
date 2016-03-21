@@ -3,18 +3,14 @@
 const assign = require('object-assign');
 const webdriver = require('selenium-webdriver');
 
-const Query = require('./query');
-
 const fn = {
 
-  find(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.driver_.wait(query.untilOne(this), query.timeout);
+  find(selector, filter) {
+    return this.driver_.createQuery(selector, filter).one(this);
   },
 
-  findAll(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.driver_.wait(query.untilSome(this), query.timeout);
+  findAll(selector, filter) {
+    return this.driver_.createQuery(selector, filter).all(this);
   },
 
   findElement(locator) {

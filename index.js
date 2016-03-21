@@ -3,38 +3,24 @@
 const URL = require('url');
 const assign = require('object-assign');
 const webdriver = require('selenium-webdriver');
+const Timeouts = require('selenium-webdriver/lib/webdriver').Timeouts;
 
 const SeActions = require('./actions');
 const build = require('./build');
 const element = require('./element');
-const filters = require('./filters');
-const locators = require('./locators');
 const until = require('./until');
-const Query = require('./query');
+const QueryFactory = require('./QueryFactory');
 
-const fn = {
+const _implicitlyWait = Timeouts.prototype.implicitlyWait;
+Timeouts.prototype.implicitlyWait = function (ms) {
+  this.driver_._implicitlyWaitTimeout = ms;
+  return _implicitlyWait.call(this, ms);
+};
 
-  use(plugin) {
-    plugin(this);
-    return this;
-  },
-
-  addLocator(locator) {
-    // TODO keep per instance list of locators
-    locators.push(locator);
-  },
-
-  addFilter(filter) {
-    // TODO keep per instance list of filters
-    filters.push(filter);
-  },
+const seleneMixin = {
 
   _decorateElement(el) {
     return element(el, this);
-  },
-
-  actions() {
-    return new SeActions(this);
   },
 
   findElement(locator) {
@@ -45,25 +31,6 @@ const fn = {
     return this.driver.findElements(locator).then(
       elements => elements.map(el => this._decorateElement(el))
     );
-  },
-
-  find(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilOne(), query.timeout);
-  },
-
-  findAll(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilSome(), query.timeout);
-  },
-
-  exists(selector, opts) {
-    const query = Query.create(selector, opts);
-    return this.wait(query.untilOne(), 1).then(res => !!res).catch(() => false);
-  },
-
-  click(selector, filter) {
-    return this.find(selector, filter).click();
   },
 
   wait(cond, timeout, message) {
@@ -79,6 +46,49 @@ const fn = {
       return this._decorateElement(ret);
     }
     return ret;
+  },
+
+  implicitlyWait(opts, cb) {
+    const timeout = getTimeout(opts);
+    const prevTimeout = this._implicitlyWaitTimeout || 0;
+
+    if (timeout == prevTimeout) return cb();
+
+    this.manage().timeouts().implicitlyWait(timeout);
+    const result = cb();
+    this.manage().timeouts().implicitlyWait(prevTimeout);
+    return result;
+  },
+
+  reloadUntil(query, opts) {
+    const condition = new webdriver.until.WebElementCondition(`for ${query}`,
+      driver => {
+        function reload(promise) {
+          return promise.catch(() => {
+            driver.navigate().refresh();
+          });
+        }
+        if (typeof query === 'function') return reload(query());
+        return reload(this.createQuery(query, opts).one(driver));
+      }
+    );
+    return this.wait(condition, getTimeout(opts));
+  },
+
+  find(selector, opts) {
+    return this.createQuery(selector, opts).one(this);
+  },
+
+  findAll(selector, opts) {
+    return this.createQuery(selector, opts).all(this);
+  },
+
+  exists(selector, opts) {
+    return this.createQuery(selector, opts).one(this).then(res => !!res).catch(() => false);
+  },
+
+  click(selector, filter) {
+    return this.find(selector, filter).click();
   },
 
   then(cb) {
@@ -109,9 +119,8 @@ const fn = {
     });
   },
 
-  reloadUntil(query, timeout) {
-    // FIXME add filter!
-    return this.wait({ reloadUntil: query }, timeout || 2000);
+  actions() {
+    return new SeActions(this);
   },
 
   getLogMessages(type, level) {
@@ -125,8 +134,12 @@ const fn = {
   }
 };
 
-function se(driver, opts) {
-  return assign(Object.create(driver), fn, {
+function getTimeout(opts) {
+  return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
+}
+
+function decorateDriver(driver, opts) {
+  return assign(Object.create(driver), seleneMixin, new QueryFactory(), {
     opts: opts || {},
     driver
   });
@@ -134,16 +147,12 @@ function se(driver, opts) {
 
 function selene(driver, opts) {
   if (driver && driver instanceof webdriver.WebDriver) {
-    return se(driver, opts);
+    return decorateDriver(driver, opts);
   }
   opts = driver || {};
   if (typeof opts == 'string') opts = { base: opts };
-  return se(build(opts), opts);
+  return decorateDriver(build(opts), opts);
 }
-
-selene.addLocator = function (locator) {
-  locators.push(locator);
-};
 
 module.exports = selene;
 module.exports.webdriver = webdriver;
