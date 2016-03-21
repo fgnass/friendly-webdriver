@@ -40,10 +40,6 @@ const fn = {
     return element(el, this);
   },
 
-  actions() {
-    return new SeActions(this);
-  },
-
   findElement(locator) {
     return this._decorateElement(this.driver.findElement(locator));
   },
@@ -54,8 +50,23 @@ const fn = {
     );
   },
 
+  wait(cond, timeout, message) {
+    if (!webdriver.promise.isPromise(cond)
+      && !(cond instanceof webdriver.until.Condition)
+      && typeof cond != 'function') {
+
+      cond = until(cond);
+    }
+
+    const ret = this.driver.wait.call(this, cond, timeout, message);
+    if (ret instanceof webdriver.WebElementPromise) {
+      return this._decorateElement(ret);
+    }
+    return ret;
+  },
+
   implicitlyWait(opts, cb) {
-    const timeout = typeof opts == 'number' ? opts : opts && opts.timeout || 0;
+    const timeout = getTimeout(opts);
     const prevTimeout = this._implicitlyWaitTimeout || 0;
 
     if (timeout == prevTimeout) return cb();
@@ -64,6 +75,21 @@ const fn = {
     const result = cb();
     this.manage().timeouts().implicitlyWait(prevTimeout);
     return result;
+  },
+
+  reloadUntil(query, opts) {
+    const condition = new webdriver.until.WebElementCondition(`for ${query}`,
+      driver => {
+        function reload(promise) {
+          return promise.catch(() => {
+            driver.navigate().refresh();
+          });
+        }
+        if (typeof query === 'function') return reload(query());
+        return reload(Query.create(query, opts).one(driver));
+      }
+    );
+    return this.wait(condition, getTimeout(opts));
   },
 
   find(selector, opts) {
@@ -80,21 +106,6 @@ const fn = {
 
   click(selector, filter) {
     return this.find(selector, filter).click();
-  },
-
-  wait(cond, timeout, message) {
-    if (!webdriver.promise.isPromise(cond)
-      && !(cond instanceof webdriver.until.Condition)
-      && typeof cond != 'function') {
-
-      cond = until(cond);
-    }
-
-    const ret = this.driver.wait.call(this, cond, timeout, message);
-    if (ret instanceof webdriver.WebElementPromise) {
-      return this._decorateElement(ret);
-    }
-    return ret;
   },
 
   then(cb) {
@@ -125,20 +136,8 @@ const fn = {
     });
   },
 
-  reloadUntil(query, opts) {
-    const condition = new webdriver.until.WebElementCondition(`for ${query}`,
-      driver => {
-        function reload(promise) {
-          return promise.catch(() => {
-            driver.navigate().refresh();
-          });
-        }
-        if (typeof query === 'function') return reload(query());
-        return reload(Query.create(query, opts).one(driver));
-      }
-    );
-    const timeout = typeof opts == 'number' ? opts : opts && opts.timeout || 0;
-    return this.wait(condition, timeout);
+  actions() {
+    return new SeActions(this);
   },
 
   getLogMessages(type, level) {
@@ -151,6 +150,10 @@ const fn = {
     );
   }
 };
+
+function getTimeout(opts) {
+  return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
+}
 
 function se(driver, opts) {
   return assign(Object.create(driver), fn, {
