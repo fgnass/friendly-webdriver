@@ -53,7 +53,7 @@ describe('index', function () {
       it('raises an error if no element with the given text is found', () => {
         const el = se.find('.occurs_once', { text: 'text_does_not_exist' });
         return expect(el, 'when rejected', 'to have message',
-          'css .occurs_once (containing "text_does_not_exist")'
+          'No such element: css .occurs_once (containing "text_does_not_exist")'
         );
       });
 
@@ -107,7 +107,7 @@ describe('index', function () {
         se.find('#delayed_wrapper').click();
         const wait = se.find('.exists_soon', { text: 'wrong text', timeout: 600 });
         return expect(wait, 'when rejected', 'to have message',
-          'css .exists_soon (containing "wrong text")'
+          'No such element: css .exists_soon (containing "wrong text")'
         );
       });
     });
