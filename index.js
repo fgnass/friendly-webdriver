@@ -8,10 +8,8 @@ const Timeouts = require('selenium-webdriver/lib/webdriver').Timeouts;
 const SeActions = require('./actions');
 const build = require('./build');
 const element = require('./element');
-const filters = require('./filters');
-const locators = require('./locators');
 const until = require('./until');
-const Query = require('./query');
+const QueryFactory = require('./QueryFactory');
 
 const _implicitlyWait = Timeouts.prototype.implicitlyWait;
 Timeouts.prototype.implicitlyWait = function (ms) {
@@ -20,21 +18,6 @@ Timeouts.prototype.implicitlyWait = function (ms) {
 };
 
 const seleneMixin = {
-
-  use(plugin) {
-    plugin(this);
-    return this;
-  },
-
-  addLocator(locator) {
-    // TODO keep per instance list of locators
-    locators.push(locator);
-  },
-
-  addFilter(filter) {
-    // TODO keep per instance list of filters
-    filters.push(filter);
-  },
 
   _decorateElement(el) {
     return element(el, this);
@@ -86,22 +69,22 @@ const seleneMixin = {
           });
         }
         if (typeof query === 'function') return reload(query());
-        return reload(Query.create(query, opts).one(driver));
+        return reload(this.createQuery(query, opts).one(driver));
       }
     );
     return this.wait(condition, getTimeout(opts));
   },
 
   find(selector, opts) {
-    return Query.create(selector, opts).one(this);
+    return this.createQuery(selector, opts).one(this);
   },
 
   findAll(selector, opts) {
-    return Query.create(selector, opts).all(this);
+    return this.createQuery(selector, opts).all(this);
   },
 
   exists(selector, opts) {
-    return Query.create(selector, opts).one(this).then(res => !!res).catch(() => false);
+    return this.createQuery(selector, opts).one(this).then(res => !!res).catch(() => false);
   },
 
   click(selector, filter) {
@@ -156,7 +139,7 @@ function getTimeout(opts) {
 }
 
 function decorateDriver(driver, opts) {
-  return assign(Object.create(driver), seleneMixin, {
+  return assign(Object.create(driver), seleneMixin, new QueryFactory(), {
     opts: opts || {},
     driver
   });
@@ -170,10 +153,6 @@ function selene(driver, opts) {
   if (typeof opts == 'string') opts = { base: opts };
   return decorateDriver(build(opts), opts);
 }
-
-selene.addLocator = function (locator) {
-  locators.push(locator);
-};
 
 module.exports = selene;
 module.exports.webdriver = webdriver;
