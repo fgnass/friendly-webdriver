@@ -3,19 +3,12 @@
 const URL = require('url');
 const assign = require('object-assign');
 const webdriver = require('selenium-webdriver');
-const Timeouts = require('selenium-webdriver/lib/webdriver').Timeouts;
 
 const SeActions = require('./actions');
 const build = require('./build');
 const element = require('./element');
 const until = require('./until');
 const QueryFactory = require('./QueryFactory');
-
-const _implicitlyWait = Timeouts.prototype.implicitlyWait;
-Timeouts.prototype.implicitlyWait = function (ms) {
-  this.driver_._implicitlyWaitTimeout = ms;
-  return _implicitlyWait.call(this, ms);
-};
 
 const seleneMixin = {
 
@@ -50,13 +43,13 @@ const seleneMixin = {
 
   implicitlyWait(opts, cb) {
     const timeout = getTimeout(opts);
-    const prevTimeout = this._implicitlyWaitTimeout || 0;
+    const defaultTimeout = this.opts.implicitlyWait || 0;
 
-    if (timeout == prevTimeout) return cb();
+    if (timeout == defaultTimeout) return cb();
 
     this.manage().timeouts().implicitlyWait(timeout);
     const result = cb();
-    this.manage().timeouts().implicitlyWait(prevTimeout);
+    this.manage().timeouts().implicitlyWait(defaultTimeout);
     return result;
   },
 
