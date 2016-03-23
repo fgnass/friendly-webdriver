@@ -82,7 +82,7 @@ function QueryFactory() {
   Query.prototype.untilSome = function (scope) {
     return new webdriver.until.Condition(`for ${this}`,
       driver => this.findAll(scope || driver).then(
-        list => list && list.length ? list : null
+        list => (list && list.length ? list : null)
       )
     );
   };
