@@ -107,7 +107,7 @@ describe('index', function () {
         se.find('#delayed_wrapper').click();
         const wait = se.find('.exists_soon', { text: 'wrong text', timeout: 600 });
         return expect(wait, 'when rejected', 'to have message',
-          'No such element: css .exists_soon (containing "wrong text")'
+          /Waiting for css \.exists_soon \(containing "wrong text"\)/
         );
       });
     });

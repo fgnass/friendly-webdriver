@@ -41,18 +41,6 @@ const seleneMixin = {
     return ret;
   },
 
-  implicitlyWait(opts, cb) {
-    const timeout = getTimeout(opts);
-    const defaultTimeout = this.opts.implicitlyWait || 0;
-
-    if (timeout == defaultTimeout) return cb();
-
-    this.manage().timeouts().implicitlyWait(timeout);
-    const result = cb();
-    this.manage().timeouts().implicitlyWait(defaultTimeout);
-    return result;
-  },
-
   reloadUntil(query, opts) {
     const condition = new webdriver.until.WebElementCondition(`for ${query}`,
       driver => {

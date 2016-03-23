@@ -13,6 +13,7 @@ function QueryFactory() {
 
     this.by = locator.by;
     this.description = locator.description;
+    this.timeout = getTimeout(opts);
     this.opts = opts;
     if (typeof opts == 'object') {
       this.filters = pickAll(filters, opts);
@@ -27,30 +28,38 @@ function QueryFactory() {
 
   Query.prototype.one = function (scope) {
     const selene = scope.driver_ || scope;
-
-    const el = selene.implicitlyWait(this.opts, () => {
-      if (!this.filters) {
-        return scope.findElement(this.by).catch(() => {
-          throw new webdriver.error.NoSuchElementError(`No such element: ${this.description}`);
-        });
-      }
-      return this.all(scope).then(matches => {
-        if (!matches || !matches.length) {
-          throw new webdriver.error.NoSuchElementError(`No such element: ${this.description}`);
-        }
-        return matches[0];
-      });
-    });
-    const elementPromise = new webdriver.WebElementPromise(selene, el);
-    return selene._decorateElement(elementPromise);
+    if (this.timeout) return selene.wait(this.untilOne(scope), this.timeout);
+    return this.findOne(scope);
   };
 
   Query.prototype.all = function (scope) {
     const selene = scope.driver_ || scope;
-    return selene.implicitlyWait(this.opts, () => {
-      const elements = scope.findElements(this.by);
-      return this.filters ? this.filter(elements) : elements;
-    });
+    if (this.timeout) return selene.wait(this.untilSome(scope), this.timeout);
+    return this.findAll(scope);
+  };
+
+  Query.prototype.assert = function (el) {
+    if (!el) {
+      throw new webdriver.error.NoSuchElementError(
+        `No such element: ${this.description}`
+      );
+    }
+    return el;
+  };
+
+  Query.prototype.findOne = function (scope) {
+    const selene = scope.driver_ || scope;
+    const el = this.filters
+      ? this.all(scope).then(matches => this.assert(matches[0]))
+      : scope.findElement(this.by).catch(() => this.assert());
+
+    const elementPromise = new webdriver.WebElementPromise(selene, el);
+    return selene._decorateElement(elementPromise);
+  };
+
+  Query.prototype.findAll = function (scope) {
+    const elements = scope.findElements(this.by);
+    return this.filters ? this.filter(elements) : elements;
   };
 
   Query.prototype.filter = function (elements) {
@@ -66,13 +75,13 @@ function QueryFactory() {
 
   Query.prototype.untilOne = function (scope) {
     return new webdriver.until.WebElementCondition(`for ${this}`,
-      driver => this.one(scope || driver).catch(() => null)
+      driver => this.findOne(scope || driver).catch(() => null)
     );
   };
 
   Query.prototype.untilSome = function (scope) {
     return new webdriver.until.Condition(`for ${this}`,
-      driver => this.all(scope || driver).then(
+      driver => this.findAll(scope || driver).then(
         list => list && list.length ? list : null
       )
     );
@@ -108,6 +117,10 @@ function pick(functions, query) {
 
 function pickAll(functions, query) {
   return functions.map(fn => fn(query)).filter(Boolean);
+}
+
+function getTimeout(opts) {
+  return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
 }
 
 module.exports = QueryFactory;
