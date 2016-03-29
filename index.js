@@ -9,7 +9,7 @@ const build = require('./build');
 const element = require('./element');
 const QueryFactory = require('./QueryFactory');
 
-const seleneMixin = {
+const Se = {
 
   _decorateElement(el) {
     return element(el, this);
@@ -114,7 +114,7 @@ function getTimeout(opts) {
 }
 
 function decorateDriver(driver, opts) {
-  return assign(Object.create(driver), seleneMixin, new QueryFactory(), {
+  return assign(Object.create(driver), Se, new QueryFactory(), {
     opts: opts || {},
     driver
   });
