@@ -98,14 +98,10 @@ const Se = {
     return new SeActions(this);
   },
 
-  getLogMessages(type, level) {
+  getLogEntries(type) {
     const t = webdriver.logging.Type[type.toUpperCase()];
     if (!t) throw new Error(`No such log type: ${type}`);
-    return this.manage().logs().get(t).then(
-      entries => entries
-        .filter(entry => !level || level.toUpperCase() == entry.level.name)
-        .map(entry => entry.message)
-    );
+    return this.manage().logs().get(t);
   }
 };
 
