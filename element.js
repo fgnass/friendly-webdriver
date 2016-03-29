@@ -44,19 +44,14 @@ const SeElement = {
   },
 
   /**
-   * el.press('ctrl+a', 'ctrl+x')
+   * el.press('ctrl+a ctrl+x')
    */
-  press(/* chord1, chord2, ... */) {
-    const args = Array.prototype.slice.call(arguments);
-
-    const keys = args.map(chord => {
+  press(sequence) {
+    const keys = sequence.split(/\s+/).map(chord => {
       const keys = chord.split(/[+-](?!$)/).map(
         key => webdriver.Key[key.toUpperCase()] || key
       );
-      if (keys.length) {
-        return webdriver.Key.chord.apply(webdriver.Key, keys);
-      }
-      return keys[0];
+      return webdriver.Key.chord.apply(webdriver.Key, keys);
     });
     this.sendKeys.apply(this, keys);
     return this;
