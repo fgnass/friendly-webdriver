@@ -62,8 +62,8 @@ const seleneMixin = {
       .then(res => !!res).catch(() => false);
   },
 
-  click(selector, filter) {
-    return this.find(selector, filter).click();
+  click(selector, filter, timeout) {
+    return this.find(selector, filter, timeout).click();
   },
 
   then(cb) {
