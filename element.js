@@ -3,7 +3,7 @@
 const assign = require('object-assign');
 const webdriver = require('selenium-webdriver');
 
-const fn = {
+const SeElement = {
 
   find(selector, filter, timeout) {
     return this.driver_.createQuery(selector, filter, timeout).one(this);
@@ -101,7 +101,7 @@ function element(el, selene) {
   return assign(Object.create(el), {
     driver_: selene,
     rawElement: el
-  }, fn);
+  }, SeElement);
 }
 
 module.exports = element;
