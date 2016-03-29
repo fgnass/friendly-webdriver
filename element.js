@@ -74,7 +74,6 @@ const SeElement = {
 
   dragDrop(target) {
     const driver = this.getDriver();
-    if (typeof target == 'string') target = driver.find(target);
     if (!webdriver.promise.isPromise(target)) {
       target = webdriver.promise.fulfilled(target);
     }
