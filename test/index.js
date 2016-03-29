@@ -12,7 +12,7 @@ const se = selene({
 
 after(() => se.quit());
 
-describe('SeDriver', () => {
+describe('Se', () => {
 
   before(() => se.goto('test.html'));
 
@@ -233,14 +233,6 @@ describe('SeElement', () => {
 
   before(() => se.goto('test.html'));
 
-  describe('#parent', () => {
-    it('finds the direct parent and returns it as a WebElement', () => {
-      const el = se.find('.child').parent();
-      expect(el, 'when fulfilled', 'to be a', WebElement);
-      return expect(el.attr('class'), 'when fulfilled', 'to be', 'parent');
-    });
-  });
-
   describe('#find', () => {
     it('finds sub-elements', () => {
       const el = se.find('.outer').find('.inner');
@@ -257,4 +249,13 @@ describe('SeElement', () => {
       return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');
     });
   });
+
+  describe('#parent', () => {
+    it('finds the direct parent and returns it as a WebElement', () => {
+      const el = se.find('.child').parent();
+      expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el.attr('class'), 'when fulfilled', 'to be', 'parent');
+    });
+  });
+
 });
