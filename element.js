@@ -79,7 +79,6 @@ const SeElement = {
 
   dragDrop(target) {
     const driver = this.getDriver();
-    const self = this;
     if (typeof target == 'string') target = driver.find(target);
     if (!webdriver.promise.isPromise(target)) {
       target = webdriver.promise.fulfilled(target);
@@ -87,7 +86,7 @@ const SeElement = {
     target.then(location =>
       driver.actions()
       .mouseMove(location) // fix for target elements that are out of view
-      .mouseDown(self)
+      .mouseDown(this)
       .mouseMove(location)
       .mouseUp()
       .perform()
