@@ -20,7 +20,7 @@ module.exports = function (opts) {
   const b = new webdriver.Builder();
   if (opts.capabilities) b.withCapabilities(opts.capabilities);
 
-  if ('envOverrrides' in opts && !opts.envOverrrides) b.disableEnvironmentOverrides();
+  if ('envOverrides' in opts && !opts.envOverrides) b.disableEnvironmentOverrides();
   if ('alerts' in opts) b.setAlertBehavior(opts.alerts);
   if ('nativeEvents' in opts) b.setEnableNativeEvents(opts.nativeEvents);
   if ('proxy' in opts) b.setProxy(opts.proxy);

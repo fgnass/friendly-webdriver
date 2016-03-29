@@ -195,7 +195,7 @@ For the meaning of each option please refer to the linked Selenium docs.
 | scrollTo | How elements should be [scrolled](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setScrollBehavior) into view for interaction. Can either be `"top"` or  `"bottom"`. |
 | logging | Set the [log level](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setLoggingPrefs) of different log types. Valid types are:  `browser`, `client`, `driver`, `performance` or `server`. Valid levels are: `off`, `severe`, `warning`, `info`, `fine`, `finer`, `finest`, `debug` or `all`. |
 | capabilities | The desired [capabilities](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#withCapabilities) when requesting a new session. |
-| envOverrrides | Whether to allow the configuration to be [overwritten by  environment variables](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#disableEnvironmentOverrides). Defaults to `true`. |
+| envOverrides | Whether to allow the configuration to be [overwritten by  environment variables](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#disableEnvironmentOverrides). Defaults to `true`. |
 | browser | The desired [target browser](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#forBrowser). You may also specify a browser by  setting the `SELENIUM_BROWSER` __environment variable__ to `browser[:[version][:platform]]`. Defaults to `firefox`|
 
 
