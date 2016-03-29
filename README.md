@@ -112,29 +112,60 @@ se.getLogEntries('browser').then(entries => {
 
 `SeElement` extends Selenium's [WebElement](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html) and adds the following methods:
 
-### `attr(name)`
+### attr
 
-### `css(prop)`
+`attr(name)` – Returns a promise for the value of the attribute with the specified name. Alias for [`getAttribute(name)`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#getAttribute)
 
-### `find(locator, [filter], [timeout])`
+### css
 
-### `findAll(selector, [filter], [timeout])`
+`css(prop)` – Returns the runtime CSS style of the given property. Alias for [`getCssValue(prop)`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#getCssValue)
 
-### `parent()`
+### find
 
-### `type(text)`
+`find(locator, [filter], [timeout])` – Scoped version of [se.find()](#find) that only takes the element's descendants into account.
 
-### `fill([attribute], values)`
+### findAll
 
-### `press(chord1, chord2, ...)`
+`findAll(selector, [filter], [timeout])` – Scoped version of [se.findAll()](#findAll) that only takes the element's descendants into account.
 
-### `dragDrop(target)`
+### fill
+
+`fill([attribute], values)` – Scoped version of [se.fill()](#fill) that only takes the element's descendants into account.
+
+
+### parent
+
+`parent()` – Returns a `SeElementPromise` for the element's parent node.
+
+### type
+
+`type(text)` – Sends keystrokes to the element to type the given text.
+
+### press
+
+`press(sequence)` – Sends a sequence of key combinations to the element.
+
+The given sequence is split at spaces into _chords_. Each chord is then split at `+` or `-` into _keys_. If a key is not found in the list of  supported [key names]( http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/input_exports_Key.html) all the characters will be pressed at once.
+
+```js
+el.press('ctrl+a ctrl+x'); // sequence of 2 chords
+el.press('ctrl-alt-delete'); // minus signs work too
+el.press('alt++ alt-+ ALT-+'); // synonym
+el.press('qwertz'); // press all at once
+el.press('h e l l o SPACE w o r l d'); // hello world
+```
+
+### dragDrop
+
+`dragDrop(target)` – Drags the element to the given target.
+
+The target can either be a `SeElement` or `{x: number, y: number}` or a promise for either of both.
 
 ## SeElementPromise
 
 `SeElementPromise` mixes both [`SeElement`](#seelement) and an [A+ compatible](https://promisesaplus.com/) promise interface. This allows calls to the `SeElement` API before the underlying element promise has been fulfilled.
 
-## Selene Options
+## Configuration
 
 | Option | Description |
 | ------ | ----------- |
@@ -175,21 +206,16 @@ __NOTE__
 > All objects created by Selene inherit from their official counterparts, hence checks like `obj instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
 
 
-## SeActions
+# Test runners
 
-`SeActions` extends Selenium's [ActionSequence](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/actions_exports_ActionSequence.html) and adds the following method:
-
-* `exec(script, args)` Executes arbitrary JavaScript
-
-## Test runners
-
-Selene does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses [Mocha](https://mochajs.org/) and Node's built-in assertions.
+Selene does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses [Mocha](https://mochajs.org/) and [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver).
 
 ```js
-var assert = require('assert');
 var selene = require('selene');
+var expect = require('unexpected');
+ expect.use(require('unexpected-webdriver'));
 
-describe('Google', function () { // <-- no `done` callback here
+describe('Google', function () {
 
   this.timeout(60000); // don't timeout too quickly
 
@@ -200,12 +226,11 @@ describe('Google', function () { // <-- no `done` callback here
     se.click('[jsaction=sf.lck]');
     se.wait({ url: 'https://www.npmjs.com/package/selene' });
 
-    //se.getTitle().then(function (t) {
-    //  assert.equal(t, 'selene');
-    //});
-    //return se; // <-- `se` itself acts as promise
+    var name = se.find('.package-name');
+    return expect(name, 'to contain text', 'selene');
   });
 });
 ```
+# License
 
-Note that there is no `done` callback in the example above. Instead it uses mocha's built-in support for promises by returning the `se` object, which itself is a `thenable`.
+MIT
