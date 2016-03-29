@@ -7,16 +7,16 @@ function QueryFactory() {
   const locators = require('./locators').slice();
   const filters = require('./filters').slice();
 
-  function Query(selector, opts) {
+  function Query(selector, filter, timeout) {
     const locator = pick(locators, selector);
     if (!locator) throw new Error(`No locator for ${selector}`);
 
     this.by = locator.by;
     this.description = locator.description;
-    this.timeout = getTimeout(opts);
-    this.opts = opts;
-    if (typeof opts == 'object') {
-      this.filters = pickAll(filters, opts);
+    this.timeout = typeof filter == 'number' ? filter : timeout;
+
+    if (typeof filter == 'object') {
+      this.filters = pickAll(filters, filter);
       const filterDescription = this.filters.map(f => f.description).join(' and ');
       if (filterDescription) this.description += ` (${filterDescription})`;
     }
@@ -88,8 +88,9 @@ function QueryFactory() {
   };
 
   return {
-    createQuery(locator, opts) {
-      return new Query(locator, opts);
+    createQuery(locator, filter, timeout) {
+      return new Query(locator, filter, timeout);
+    },
     },
 
     use(plugin) {
@@ -117,10 +118,6 @@ function pick(functions, query) {
 
 function pickAll(functions, query) {
   return functions.map(fn => fn(query)).filter(Boolean);
-}
-
-function getTimeout(opts) {
-  return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
 }
 
 module.exports = QueryFactory;

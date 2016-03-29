@@ -5,12 +5,12 @@ const webdriver = require('selenium-webdriver');
 
 const fn = {
 
-  find(selector, filter) {
-    return this.driver_.createQuery(selector, filter).one(this);
+  find(selector, filter, timeout) {
+    return this.driver_.createQuery(selector, filter, timeout).one(this);
   },
 
-  findAll(selector, filter) {
-    return this.driver_.createQuery(selector, filter).all(this);
+  findAll(selector, filter, timeout) {
+    return this.driver_.createQuery(selector, filter, timeout).all(this);
   },
 
   findElement(locator) {

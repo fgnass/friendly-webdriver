@@ -56,12 +56,12 @@ const seleneMixin = {
     return this.wait(condition, getTimeout(opts));
   },
 
-  find(selector, opts) {
-    return this.createQuery(selector, opts).one(this);
+  find(selector, filter, timeout) {
+    return this.createQuery(selector, filter, timeout).one(this);
   },
 
-  findAll(selector, opts) {
-    return this.createQuery(selector, opts).all(this);
+  findAll(selector, filter, timeout) {
+    return this.createQuery(selector, filter, timeout).all(this);
   },
 
   exists(selector, opts) {
