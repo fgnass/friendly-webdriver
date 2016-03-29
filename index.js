@@ -7,7 +7,6 @@ const webdriver = require('selenium-webdriver');
 const SeActions = require('./actions');
 const build = require('./build');
 const element = require('./element');
-const until = require('./until');
 const QueryFactory = require('./QueryFactory');
 
 const seleneMixin = {
@@ -26,15 +25,9 @@ const seleneMixin = {
     );
   },
 
-  wait(cond, timeout, message) {
-    if (!webdriver.promise.isPromise(cond)
-      && !(cond instanceof webdriver.until.Condition)
-      && typeof cond != 'function') {
-
-      cond = until(cond);
-    }
-
-    const ret = this.driver.wait.call(this, cond, timeout, message);
+  wait(until, timeout, message) {
+    const condition = this.createCondition(until);
+    const ret = this.driver.wait.call(this, condition, timeout, message);
     if (ret instanceof webdriver.WebElementPromise) {
       return this._decorateElement(ret);
     }
@@ -65,7 +58,8 @@ const seleneMixin = {
   },
 
   exists(selector, opts) {
-    return this.createQuery(selector, opts).one(this).then(res => !!res).catch(() => false);
+    return this.createQuery(selector, opts).one(this)
+      .then(res => !!res).catch(() => false);
   },
 
   click(selector, filter) {

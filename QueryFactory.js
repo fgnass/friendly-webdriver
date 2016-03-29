@@ -6,6 +6,7 @@ function QueryFactory() {
 
   const locators = require('./locators').slice();
   const filters = require('./filters').slice();
+  const conditions = require('./conditions').slice();
 
   function Query(selector, filter, timeout) {
     const locator = pick(locators, selector);
@@ -91,6 +92,11 @@ function QueryFactory() {
     createQuery(locator, filter, timeout) {
       return new Query(locator, filter, timeout);
     },
+
+    createCondition(spec) {
+      const condition = pick(conditions, spec);
+      if (!condition) throw new Error(`Unsupported condition ${spec}`);
+      return condition;
     },
 
     use(plugin) {
@@ -100,6 +106,9 @@ function QueryFactory() {
         },
         addFilter(filter) {
           filters.push(filter);
+        },
+        addCondition(condition) {
+          conditions.push(condition);
         }
       });
       return this;
