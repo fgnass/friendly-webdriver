@@ -34,19 +34,11 @@ const Se = {
     return ret;
   },
 
-  reloadUntil(query, opts) {
-    const condition = new webdriver.until.WebElementCondition(`for ${query}`,
-      driver => {
-        function reload(promise) {
-          return promise.catch(() => {
-            driver.navigate().refresh();
-          });
-        }
-        if (typeof query === 'function') return reload(query());
-        return reload(this.createQuery(query, opts).one(driver));
-      }
-    );
-    return this.wait(condition, getTimeout(opts));
+  reloadUntil(until, timeout, message) {
+    const condition = this.createCondition(until);
+    const reload = () => { this.navigate().refresh(); };
+    const innerWait = () => this.wait(condition, 1).catch(reload);
+    return this.wait(innerWait, timeout, message || condition.description);
   },
 
   find(selector, filter, timeout) {
@@ -106,10 +98,6 @@ const Se = {
     return this.manage().logs().get(t);
   }
 };
-
-function getTimeout(opts) {
-  return typeof opts == 'number' ? opts : opts && opts.timeout || 0;
-}
 
 function decorateDriver(driver, opts) {
   return assign(Object.create(driver), Se, new QueryFactory(), {
