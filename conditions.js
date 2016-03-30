@@ -20,7 +20,7 @@ const builtIns = {
 
   title(title) {
     if (title instanceof RegExp) return until.titleMatches(title);
-    return until.titles(title);
+    return until.titleIs(title);
   },
 
   unless(spec) {
