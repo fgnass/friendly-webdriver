@@ -30,7 +30,8 @@ In addition to the [WebDriver API](http://seleniumhq.github.io/selenium/docs/api
 
 ### goto
 
-`goto(url)`
+`goto(url)` – Navigates to the given URL. Relative paths will be resolved against the [configured](#configuration) base URL.
+Returns `this` for chaining.
 
 ### find
 
@@ -59,16 +60,20 @@ Returns a promise for a boolean value indicating whether the specified element e
 
 ### wait
 
-Wraps the Selenium WebDriver [`wait`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html#wait) method to ensure that whenever a `WebElementPromise` would be returned it will actually be a [`SeElementPromise`](#seelementpromise).
+Wraps the Selenium WebDriver [`wait`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html#wait) method to support custom [conditions](#conditions).
 
 `wait(condition, [timeout], [message])`
-  * `condition`: The [condition](#conditions) to wait for
+  * `condition`: The condition to wait for
   * `timeout`: Optional timeout in milliseconds to wait
   * `message`: Optional error message in case of a timeout
 
+### reloadUntil
+
+Reloads the page until the given condition is met. Takes the same arguments as `wait()`.
+
 ### fill
 
-Fills multiple input elements at once. The input elements are looked up using a CSS attribute selector. By default Selene expects each element to have a unique `name` attribute. Optionally a custom attribute can be specified.
+Fills multiple input elements at once. The input elements are looked up using a CSS attribute selector. By default Selene expects each element to have a unique `name` attribute. Optionally a custom attribute can be specified. Returns `this` for chaining.
 
 `fill([attribute], values)`
   * `attribute`: Attribute name to use in CSS selectors. Defaults to `name`
@@ -169,8 +174,8 @@ The target can either be a `SeElement` or `{x: number, y: number}` or a promise 
 
 | Option | Description |
 | ------ | ----------- |
-| base   | ... |
-| auth   | ... |
+| base   | Base URL against which all relative paths are resolved. |
+| auth   | Credentials for HTTP basic authentication. |
 
 ```js
 var se = selene({
@@ -180,6 +185,8 @@ var se = selene({
     pass: 'secret'
   }
 });
+
+se.goto('/').click('a[href="/welcome"]').wait({ url: '/welcome' });
 ```
 
 
@@ -203,7 +210,7 @@ Additionally you can provide browser-specific options under the keys
 [`chrome`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setChromeOptions), [`opera`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setOperaOptions), [`safari`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setSafariOptions), [`ie`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setIeOptions), [`edge`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setEdgeOptions) or [`firefox`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setFirefoxOptions).
 
 __NOTE__
-> All objects created by Selene inherit from their official counterparts, hence checks like `obj instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
+> All objects created by Selene inherit from their official counterparts, hence checks like `se instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
 
 
 # Test runners
