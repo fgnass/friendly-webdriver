@@ -52,7 +52,7 @@ module.exports = [
       return new Condition(`promise ${spec}`, () => spec);
     }
     if (typeof spec == 'function') {
-      return new Condition(`function ${spec}`, spec);
+      return new Condition(spec.toString(), spec);
     }
   },
 
