@@ -2,6 +2,7 @@
 
 <html>
   <head>
+    <title>Selene</title>
   </head>
   <body style='background-color: pink;'>
     <span id='exists'></span>
@@ -16,6 +17,10 @@
     <input id='street_input' type='text' name='street'></input>
     <input id='zipcode_input' type='text'></input>
     <input id='already_filled' type='text' value='PREVIOUS_VALUE'></input>
+
+    <form id="nested_form">
+      <input type='text' name='street'></input>
+    </form>
 
     <div class='with_text'>wrong text</div>
     <div class='with_text'>correct text</div>
@@ -39,7 +44,7 @@
       setTimeout(function () {
         var p = document.createElement('p');
         p.setAttribute('class', 'exists_soon');
-        p.innerHTML='correct text'
+        p.innerHTML = 'correct text'
         element.appendChild(p);
       }, 500);
 
@@ -48,13 +53,14 @@
 
   <script type="text/javascript">
     var wrapper = document.getElementById('delayed_wrapper');
-    var isEnabled = window.localStorage.getItem('renderDelayedReloadItem')
+    var isEnabled = window.localStorage.getItem('renderDelayedReloadItem');
 
     if(isEnabled) {
-      var el = document.createElement('div')
-      el.setAttribute('class', 'reload-item')
-      el.innerHTML = 'correct text'
-      wrapper.appendChild(el)
+      document.title = 'reload-title';
+      var el = document.createElement('div');
+      el.setAttribute('class', 'reload-item');
+      el.innerHTML = 'correct text';
+      wrapper.appendChild(el);
     }
   </script>
 </html>

@@ -10,11 +10,10 @@ const se = selene({
   base: `file://${__dirname}/fixtures/`
 });
 
+beforeEach(() => se.goto('test.html'));
 after(() => se.quit());
 
 describe('Se', () => {
-
-  before(() => se.goto('test.html'));
 
   describe.skip('#goto', () => {
     it('is really hard to test', () => {
@@ -171,25 +170,26 @@ describe('Se', () => {
   });
 
   describe('#wait', () => {
-    describe('when the condition is a promise', () => {
-      it('waits for the promise to be resolved', () => {
-        const promise = new Promise(
-          resolve => setImmediate(() => resolve('done'))
-        );
-        const wait = se.wait(promise, 1000, 'message');
-        return expect(wait, 'to be fulfilled with', 'done');
-      });
+    it('should wait for promises to be resolved', () => {
+      const promise = new Promise(
+        resolve => setImmediate(() => resolve('done'))
+      );
+      const wait = se.wait(promise, 1000, 'message');
+      return expect(wait, 'to be fulfilled with', 'done');
     });
 
-    describe('when the condition is a function', () => {
-      it('waits for the function to be finished', () => {
-        let i = 0;
-        function fn() {
-          if (i++ > 1) return 'DONE';
-        }
-        const wait = se.wait(fn, 2000, 'message');
-        return expect(wait, 'to be fulfilled with', 'DONE');
-      });
+    it('should wait for the functions to return a truthy value', () => {
+      let i = 0;
+      function fn() {
+        if (i++ > 1) return 'DONE';
+      }
+      const wait = se.wait(fn, 2000, 'message');
+      return expect(wait, 'to be fulfilled with', 'DONE');
+    });
+
+    it('should wait for the title to match', () => {
+      const wait = se.wait({ title: 'Selene' }, 2000, 'message');
+      return expect(wait, 'to be fulfilled with', true);
     });
   });
 
@@ -207,22 +207,17 @@ describe('Se', () => {
       setTimeout(() => se.executeScript(setDelayed), 100);
     });
 
-    afterEach(() =>
-      se.executeScript(clearStorage).then(() => se.navigate().refresh())
-    );
+    afterEach(() => se.executeScript(clearStorage));
 
-    it('supports simple css selector', () => {
-      const wait = se.reloadUntil('.reload-item');
-      return expect(wait, 'when fulfilled', 'to be a', WebElement);
-    });
-
-    it('supports text filter', () => {
-      const wait = se.reloadUntil({ css: '.reload-item', text: 'correct text' });
-      return expect(wait, 'when fulfilled', 'to be a', WebElement);
+    it('supports conditions', () => {
+      const wait = se.reloadUntil({ title: 'reload-title' });
+      return expect(wait, 'to be fulfilled with', true);
     });
 
     it('supports chained expressions', () => {
-      const wait = se.reloadUntil(() => se.find('#delayed_wrapper').find('.reload-item'), 2000);
+      const wait = se.reloadUntil(() =>
+        (se.find('#delayed_wrapper').find('.reload-item'))
+      , 2000);
       return expect(wait, 'when fulfilled', 'to be a', WebElement);
     });
 
@@ -230,8 +225,6 @@ describe('Se', () => {
 });
 
 describe('SeElement', () => {
-
-  before(() => se.goto('test.html'));
 
   describe('#find', () => {
     it('finds sub-elements', () => {
@@ -255,6 +248,34 @@ describe('SeElement', () => {
       const el = se.find('.child').parent();
       expect(el, 'when fulfilled', 'to be a', WebElement);
       return expect(el.attr('class'), 'when fulfilled', 'to be', 'parent');
+    });
+  });
+
+  describe('#type', () => {
+    it('should type values into input fields', () => {
+      const el = se.find('#already_filled').type('+1');
+      return expect(el.attr('value'), 'to be fulfilled with', 'PREVIOUS_VALUE+1');
+    });
+  });
+
+  describe('#press', () => {
+    it('should press keys', () => {
+      const el = se.find('#street_input').press('a SPACE shift+b space SHIFT-c');
+      return expect(el.attr('value'), 'to be fulfilled with', 'a B C');
+    });
+  });
+
+  describe('#fill', () => {
+    it('should fill only inputs that are descendants', () => {
+      se.find('#nested_form').fill({ street: 'NESTED_STREET' });
+
+      const outerValue = se.find('#street_input').attr('value');
+      const innerValue = se.find('#nested_form input').attr('value');
+
+      return Promise.all([
+        expect(outerValue, 'to be fulfilled with', ''),
+        expect(innerValue, 'to be fulfilled with', 'NESTED_STREET')
+      ]);
     });
   });
 
