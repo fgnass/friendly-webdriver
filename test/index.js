@@ -178,13 +178,10 @@ describe('Se', () => {
       return expect(wait, 'to be fulfilled with', 'done');
     });
 
-    it('should wait for the functions to return a truthy value', () => {
-      let i = 0;
-      function fn() {
-        if (i++ > 1) return 'DONE';
-      }
-      const wait = se.wait(fn, 2000, 'message');
-      return expect(wait, 'to be fulfilled with', 'DONE');
+    it('should wait for function results to be fulfilled', () => {
+      se.find('#delayed_wrapper').click();
+      const wait = se.wait(() => se.exists('.exists_soon'), 2000);
+      return expect(wait, 'to be fulfilled with', true);
     });
 
     it('should wait for the title to match', () => {
