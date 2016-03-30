@@ -82,6 +82,7 @@ const Se = {
     } else {
       this.navigate().to(target);
     }
+    return this;
   },
 
   fill(attr, values) {
@@ -92,6 +93,7 @@ const Se = {
     Object.keys(values).forEach(name => {
       this.find(`[${attr}=${name}]`).clear().type(values[name]);
     });
+    return this;
   },
 
   actions() {
