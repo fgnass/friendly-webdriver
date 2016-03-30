@@ -11,6 +11,18 @@ module.exports = [
       };
     }
   },
+  function js(fn) {
+    if (typeof fn === 'function') {
+      return {
+        description: fn.toString(),
+        by(scope) {
+          const selene = scope.driver_ || scope;
+          const el = scope.driver_ ? scope : null;
+          return selene.executeScript(fn, el);
+        }
+      };
+    }
+  },
   function builtIns(query) {
     if (query instanceof webdriver.By) {
       return {

@@ -241,6 +241,14 @@ describe('SeElement', () => {
       expect(el, 'when fulfilled', 'to be a', WebElement);
       return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');
     });
+
+    it('finds sub-elements by executing a function', () => {
+      const el = se.find('.outer').find(function (el) {
+        return el.lastElementChild;
+      });
+      return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');
+    });
+
   });
 
   describe('#parent', () => {
