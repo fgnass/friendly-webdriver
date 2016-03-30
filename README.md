@@ -20,6 +20,48 @@ se.fill({ q: 'selene npm' });
 se.click('[jsaction=sf.lck]');
 ```
 
+# Concepts
+
+Selene adds the concept of [locators](#locators), [filters](#filters) and [conditions](#conditions) on top of the WebDriver API and allows [plugins](#plugins) to register their own custom implementations of either of these.
+
+## Locators
+
+By default Selene supports the following locators:
+
+```js
+// CSS selectors
+se.find('.button');
+
+// XPath expressions
+se.find({ xpath: '//main' });
+
+// Custom functions
+se.find('ul').find(function (el) {
+  return el.firstChild;
+});
+```
+
+## Filters
+
+When locating elements Selene also provides a way to filter the results. By default the following filters are supported:
+
+```js
+se.find('.button', { visible: true });
+se.find('.button', { text: 'click me' });
+se.find('.button', { text: /click/ });
+```
+
+## Conditions
+
+```js
+se.wait({ url: '/welcome' }, 2000);
+se.wait({ title: /Selene/ }, 2000);
+se.wait(() => se.find('.foo').find('.bar'), 2000);
+se.wait({ stale: se.find('body') }, 2000);
+```
+
+## Plugins
+
 # API
 
 The top-level [`selene()`](#configuration) function is a factory for [`Selene`](#selene) instances which are thin wrappers around Selenium `WebDriver` objects.
@@ -112,6 +154,9 @@ se.getLogEntries('browser').then(entries => {
 });
 ```
 
+### use
+
+`use(plugin)` – Registers a [plugin](#plugins).
 
 ## SeElement
 
