@@ -96,6 +96,11 @@ const Se = {
     const t = webdriver.logging.Type[type.toUpperCase()];
     if (!t) throw new Error(`No such log type: ${type}`);
     return this.manage().logs().get(t);
+  },
+
+  use(plugin) {
+    plugin(this);
+    return this;
   }
 };
 

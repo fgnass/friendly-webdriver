@@ -99,19 +99,16 @@ function QueryFactory() {
       return condition;
     },
 
-    use(plugin) {
-      plugin({
-        addLocator(locator) {
-          locators.push(locator);
-        },
-        addFilter(filter) {
-          filters.push(filter);
-        },
-        addCondition(condition) {
-          conditions.push(condition);
-        }
-      });
-      return this;
+    addLocator(locator) {
+      locators.push(locator);
+    },
+
+    addFilter(filter) {
+      filters.push(filter);
+    },
+
+    addCondition(condition) {
+      conditions.push(condition);
     }
   };
 }
