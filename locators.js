@@ -14,7 +14,7 @@ module.exports = [
   function js(fn) {
     if (typeof fn === 'function') {
       return {
-        description: fn.toString(),
+        description: fn.name || fn.toString(),
         by(scope) {
           const selene = scope.driver_ || scope;
           const el = scope.driver_ ? scope : null;
