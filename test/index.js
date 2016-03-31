@@ -15,8 +15,10 @@ after(() => se.quit());
 
 describe('Se', () => {
 
-  describe.skip('#goto', () => {
-    it('is really hard to test', () => {
+  describe('#goto', () => {
+    it('shoud go to another page', () => {
+      se.goto('other.html');
+      return expect(se.getTitle(), 'to be fulfilled with', 'other');
     });
   });
 
