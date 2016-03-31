@@ -76,9 +76,9 @@ se.find('.button');
 se.find({ xpath: '//main' });
 
 // Client-side functions
-se.find('ul').find(function (el) {
+se.find('ul').find({ js: function (el) {
   return el.firstChild;
-});
+}});
 ```
 
 You can add custom locators via the [`addLocator()`](#addlocator) method.

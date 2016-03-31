@@ -11,8 +11,10 @@ module.exports = [
       };
     }
   },
-  function js(fn) {
-    if (typeof fn === 'function') {
+
+  function js(query) {
+    if (typeof query === 'object' && typeof query.js == 'function') {
+      const fn = query.js;
       return {
         description: fn.name || fn.toString(),
         by(scope) {
@@ -23,7 +25,9 @@ module.exports = [
       };
     }
   },
+
   function builtIns(query) {
+    if (typeof query !== 'object') return;
     if (query instanceof webdriver.By) {
       return {
         description: query.toString(),

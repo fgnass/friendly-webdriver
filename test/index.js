@@ -242,12 +242,12 @@ describe('SeElement', () => {
     });
 
     it('finds sub-elements by executing a function', () => {
-      const el = se.find('.outer').find(function (el) {
+      function lastChild(el) {
         return el.lastElementChild;
-      });
+      }
+      const el = se.find('.outer').find({ js: lastChild });
       return expect(el.getText(), 'when fulfilled', 'to be', 'lorem dipsum');
     });
-
   });
 
   describe('#parent', () => {
