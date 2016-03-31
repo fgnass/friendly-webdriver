@@ -81,6 +81,8 @@ se.find('ul').find(function (el) {
 });
 ```
 
+You can add custom locators via [`addLocator()`](#addlocator).
+
 ## Filters
 
 When locating elements Selene also provides a way to filter the results. By default the following filters are supported:
@@ -90,6 +92,8 @@ se.find('.button', { visible: true });
 se.find('.button', { text: 'click me' });
 se.find('.button', { text: /click/ });
 ```
+
+You can add custom filters via the [`addFilter()`](#addfilter) method.
 
 ## Conditions
 
@@ -196,13 +200,75 @@ se.getLogEntries('browser').then(entries => {
 
 ### addLocator
 
+Registers a custom [locator](#locators).
+
+`addLocator(fn)`
+  * `fn` A function that takes an arbitrary `query` object as argument and returns
+  `{ description: String, by: (webdriver.by.By | Function) }` if it wants to handle the given query.
+
+The following example adds a locator that uses jQuery to locate elements:
+
+```js
+se.addLocator(query => {
+  // Handle only objects that have a `jQuery` property
+  if (typeof query === 'object' && 'jQuery' in query) {
+    const selector = query.$;
+    return {
+      description: `$(${selector})`, // description used in error messages
+      by: driver => driver.executeScript(jQuery, selector)
+    };
+  }
+
+  // This function gets executed inside the browser:
+  function jQuery(selector) {
+    if (!window.$) throw new Error('jQuery not found in global scope');
+    return window.$(selector);
+  }
+});
+
+// Use it like this:
+se.find({jQuery: 'div:animated' });
+```
+
 ### addFilter
+
+Registers a custom [filter](#filter).
+
+`addFilter(fn)`
+  * `fn` A function that takes an arbitrary `filter` object as argument and returns
+  `{ description: String, test: Function) }` if it wants to handle the given filter.
+
+The following example adds a _min-width_ filter:
+
+```js
+se.addFilter(filter => {
+  if (filter.minWidth) {
+    return {
+      description: `width >= ${filter.minWidth}px`,
+      test(el) {
+        return el.getSize().then(size => size.width >= filter.minWidth);
+      }
+    };
+  }
+});
+
+// Use it like this:
+se.find('img', { minWidth: 200 });
+```
 
 ### addCondition
 
+Registers a custom [condition](#conditions).
+
+`addCondition(fn)`
+  * `fn` A function that takes an arbitrary `until` object as argument and returns a `webdriver.until.Contition` if it wants to handle the given object.
+
 ### use
 
-`use(plugin)` – Registers a [plugin](#plugins).
+Registers a plugin.
+
+`use(plugin)`
+* `plugin` A function that is invoked with a `Selene` instance so it can call [`addLocator()`](#addlocator), [`addFilter()`](#addfilter) or [`addCondition()`](#addcondition).
 
 
 ## SeElement
