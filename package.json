@@ -6,7 +6,10 @@
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
   "license": "MIT",
   "scripts": {
-    "test": "eslint . && mocha"
+    "test": "mocha",
+    "lint": "eslint .",
+    "doctoc": "doctoc README.md --title '**Contents**'",
+    "preversion": "npm run lint && npm test && npm run doctoc"
   },
   "keywords": [
     "selenium",
@@ -20,6 +23,7 @@
     "selenium-webdriver": "^2.52.0"
   },
   "devDependencies": {
+    "doctoc": "^1.0.0",
     "eslint": "^2.2.0",
     "eslint-config-airbnb": "^6.0.2",
     "mocha": "^2.4.5",

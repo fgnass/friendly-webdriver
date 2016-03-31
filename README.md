@@ -9,7 +9,7 @@ Unlike [other](http://nightwatchjs.org/) [webdriver](http://webdriver.io/) [libr
 
 While being very powerful, the official API sometimes feels a little alien to JavaScript developers as it is very closely modeled after its Java ancestor.
 
-# Usage
+**Example:**
 
 ```js
 var selene = require('selene');
@@ -19,6 +19,46 @@ se.goto('https://www.google.com/');
 se.fill({ q: 'selene npm' });
 se.click('[jsaction=sf.lck]');
 ```
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Contents**
+
+- [Concepts](#concepts)
+  - [Locators](#locators)
+  - [Filters](#filters)
+  - [Conditions](#conditions)
+- [API](#api)
+  - [Selene](#selene)
+    - [goto](#goto)
+    - [find](#find)
+    - [findAll](#findall)
+    - [click](#click)
+    - [exists](#exists)
+    - [wait](#wait)
+    - [reloadUntil](#reloaduntil)
+    - [fill](#fill)
+    - [getLogEntries](#getlogentries)
+    - [addLocator](#addlocator)
+    - [addFilter](#addfilter)
+    - [addCondition](#addcondition)
+    - [use](#use)
+  - [SeElement](#seelement)
+    - [attr](#attr)
+    - [css](#css)
+    - [find](#find-1)
+    - [findAll](#findall-1)
+    - [fill](#fill-1)
+    - [parent](#parent)
+    - [type](#type)
+    - [press](#press)
+    - [dragDrop](#dragdrop)
+  - [SeElementPromise](#seelementpromise)
+  - [Configuration](#configuration)
+- [Test runners](#test-runners)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Concepts
 
