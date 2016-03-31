@@ -35,7 +35,7 @@ se.find('.button');
 // XPath expressions
 se.find({ xpath: '//main' });
 
-// Custom functions
+// Client-side functions
 se.find('ul').find(function (el) {
   return el.firstChild;
 });
@@ -53,14 +53,14 @@ se.find('.button', { text: /click/ });
 
 ## Conditions
 
+You can use Selene to wait for certain conditions to be met. The following conditions are supported by default:
+
 ```js
 se.wait({ url: '/welcome' }, 2000);
 se.wait({ title: /Selene/ }, 2000);
 se.wait(() => se.find('.foo').find('.bar'), 2000);
 se.wait({ stale: se.find('body') }, 2000);
 ```
-
-## Plugins
 
 # API
 
@@ -154,9 +154,16 @@ se.getLogEntries('browser').then(entries => {
 });
 ```
 
+### addLocator
+
+### addFilter
+
+### addCondition
+
 ### use
 
 `use(plugin)` – Registers a [plugin](#plugins).
+
 
 ## SeElement
 
