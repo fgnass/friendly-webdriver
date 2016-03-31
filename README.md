@@ -62,7 +62,7 @@ se.click('[jsaction=sf.lck]');
 
 # Concepts
 
-Selene adds the concept of [locators](#locators), [filters](#filters) and [conditions](#conditions) on top of the WebDriver API and allows [plugins](#plugins) to register their own custom implementations of either of these.
+Selene adds the concept of [locators](#locators), [filters](#filters) and [conditions](#conditions) on top of the WebDriver API.
 
 ## Locators
 
@@ -81,7 +81,7 @@ se.find('ul').find(function (el) {
 });
 ```
 
-You can add custom locators via [`addLocator()`](#addlocator).
+You can add custom locators via the [`addLocator()`](#addlocator) method.
 
 ## Filters
 
@@ -105,6 +105,9 @@ se.wait({ title: /Selene/ }, 2000);
 se.wait(() => se.find('.foo').find('.bar'), 2000);
 se.wait({ stale: se.find('body') }, 2000);
 ```
+
+You can add custom conditions via the [`addCondition()`](#addcondition) method.
+
 
 # API
 
