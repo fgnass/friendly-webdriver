@@ -1,6 +1,6 @@
 {
   "name": "selene",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "A friendly selenium-webdriver API",
   "repository": "LiquidLabsGmbH/selene",
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
