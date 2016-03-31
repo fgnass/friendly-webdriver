@@ -6,7 +6,7 @@
   "author": "Felix Gnass <f.gnass@liquidlabs.de>",
   "license": "MIT",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -t 60000",
     "lint": "eslint .",
     "doctoc": "doctoc README.md --title '**Contents**'",
     "preversion": "npm run lint && npm test && npm run doctoc"
