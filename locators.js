@@ -27,19 +27,20 @@ module.exports = [
   },
 
   function builtIns(query) {
-    if (typeof query !== 'object') return;
-    if (query instanceof webdriver.By) {
+    if (typeof query === 'function' || query instanceof webdriver.By) {
       return {
-        description: query.toString(),
+        description: query.displayName || query.toString(),
         by: query
       };
     }
-    for (const key in query) {
-      if (query.hasOwnProperty(key) && webdriver.By.hasOwnProperty(key)) {
-        return {
-          description: `${key} ${query[key]}`,
-          by: webdriver.By[key](query[key])
-        };
+    if (typeof query === 'object') {
+      for (const key in query) {
+        if (query.hasOwnProperty(key) && webdriver.By.hasOwnProperty(key)) {
+          return {
+            description: `${key} ${query[key]}`,
+            by: webdriver.By[key](query[key])
+          };
+        }
       }
     }
   }

@@ -25,17 +25,32 @@ describe('Se', () => {
   describe('#find', () => {
     it('finds a single WebElement by its CSS selector', () => {
       const el = se.find('.occurs_once');
-      return expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el, 'to be a', WebElement).and('to be fulfilled');
     });
 
     it('finds the first, even if there are multiple elements', () => {
       const el = se.find('.occurs_twice');
-      return expect(el, 'when fulfilled', 'to be a', WebElement);
+      return expect(el, 'to be a', WebElement).and('to be fulfilled');
     });
 
     it('raises an error if the element is not present', () => {
       const el = se.find('.not_available');
       return expect(el, 'when rejected', 'to be an', Error);
+    });
+
+    it('finds an element if the locator is a function', () => {
+      const el = se.find(() => se.find('.occurs_twice'));
+      return expect(el, 'to be a', WebElement).and('to be fulfilled');
+    });
+
+    it('includes the displayName of the locator in error messages', () => {
+      function locator() {
+        return se.find('.not_available');
+      }
+      locator.displayName = 'custom locator name';
+      const el = se.find(locator);
+      return expect(el, 'when rejected', 'to have message',
+        'No such element: custom locator name');
     });
 
     describe('providing a filter', () => {
