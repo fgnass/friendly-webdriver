@@ -381,7 +381,8 @@ Selene does not come with its own test runner nor is it bound to a specific asse
 ```js
 var selene = require('selene');
 var expect = require('unexpected');
- expect.use(require('unexpected-webdriver'));
+
+expect.use(require('unexpected-webdriver')());
 
 describe('Google', function () {
 
