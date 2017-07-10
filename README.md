@@ -1,23 +1,23 @@
-# ![Selene](https://raw.githubusercontent.com/LiquidLabsGmbH/selene/master/logo.png)
+[![Build Status](https://travis-ci.org/fgnass/friendly-webdriver.svg?branch=master)](https://travis-ci.org/fgnass/friendly-webdriver)
 
-[![Build Status](https://travis-ci.org/LiquidLabsGmbH/selene.svg?branch=master)](https://travis-ci.org/LiquidLabsGmbH/selene)
+# friendly-webdriver 🚕
 
+This is a thin wrapper around the [official Selenium JavaScript](https://github.com/SeleniumHQ/selenium/wiki/WebDriverJs) bindings.
 
-The aim of Selene is to provide a WebDriver API with a strong focus on developer experience (DX).
+While being very powerful, the official API often feels a little alien to JavaScript developers as it is very closely modeled after its Java ancestor.
 
-Unlike [other](http://nightwatchjs.org/) [webdriver](http://webdriver.io/) [libraries](https://www.npmjs.com/package/wd), Selene uses the [official Selenium JavaScript](https://github.com/SeleniumHQ/selenium/wiki/WebDriverJs) bindings. This has the big advantage that you __don't need a Selenium server__ in order to control browsers on your local machine. This does not only make things much easier to set up but also makes things considerably faster as it saves a lot of roundtrips.
+**NOTE:** Since _friendly-webdriver_ uses the official bindings under the hood you __don't need a Selenium server__ in order to control browsers on your local machine. This does not only make things much easier to set up but also makes things considerably faster as it saves a lot of roundtrips.
 
-While being very powerful, the official API sometimes feels a little alien to JavaScript developers as it is very closely modeled after its Java ancestor.
 
 **Example:**
 
 ```js
-var selene = require('selene');
+var webdriver = require('friendly-webdriver');
 
-var se = selene();
-se.goto('https://www.google.com/');
-se.fill({ q: 'selene npm' });
-se.click('[jsaction=sf.lck]');
+var fwd = webdriver();
+fwd.goto('https://www.google.com/');
+fwd.fill({ q: 'friendly-webdriver npm' });
+fwd.click('[jsaction=sf.lck]');
 ```
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -29,7 +29,7 @@ se.click('[jsaction=sf.lck]');
   - [Filters](#filters)
   - [Conditions](#conditions)
 - [API](#api)
-  - [Selene](#selene)
+  - [FriendlyWebDriver](#friendlywebdriver)
     - [goto](#goto)
     - [find](#find)
     - [findAll](#findall)
@@ -43,7 +43,7 @@ se.click('[jsaction=sf.lck]');
     - [addFilter](#addfilter)
     - [addCondition](#addcondition)
     - [use](#use)
-  - [SeElement](#seelement)
+  - [FwdElement](#fwdelement)
     - [attr](#attr)
     - [css](#css)
     - [find](#find-1)
@@ -53,7 +53,7 @@ se.click('[jsaction=sf.lck]');
     - [type](#type)
     - [press](#press)
     - [dragDrop](#dragdrop)
-  - [SeElementPromise](#seelementpromise)
+  - [FwdElementPromise](#fwdelementpromise)
   - [Configuration](#configuration)
 - [Test runners](#test-runners)
 - [License](#license)
@@ -62,21 +62,21 @@ se.click('[jsaction=sf.lck]');
 
 # Concepts
 
-Selene adds the concept of [locators](#locators), [filters](#filters) and [conditions](#conditions) on top of the WebDriver API.
+FWD adds the concept of [locators](#locators), [filters](#filters) and [conditions](#conditions) on top of the WebDriver API.
 
 ## Locators
 
-By default Selene supports the following locators:
+By default FWD supports the following locators:
 
 ```js
 // CSS selectors
-se.find('.button');
+fwd.find('.button');
 
 // XPath expressions
-se.find({ xpath: '//main' });
+fwd.find({ xpath: '//main' });
 
 // Client-side functions
-se.find('ul').find({ js: function (el) {
+fwd.find('ul').find({ js: function (el) {
   return el.firstChild;
 }});
 ```
@@ -85,25 +85,25 @@ You can add custom locators via the [`addLocator()`](#addlocator) method.
 
 ## Filters
 
-When locating elements Selene also provides a way to filter the results. By default the following filters are supported:
+When locating elements FWD also provides a way to filter the results. By default the following filters are supported:
 
 ```js
-se.find('.button', { visible: true });
-se.find('.button', { text: 'click me' });
-se.find('.button', { text: /click/ });
+fwd.find('.button', { visible: true });
+fwd.find('.button', { text: 'click me' });
+fwd.find('.button', { text: /click/ });
 ```
 
 You can add custom filters via the [`addFilter()`](#addfilter) method.
 
 ## Conditions
 
-You can use Selene to wait for certain conditions to be met. The following conditions are supported by default:
+You can use FWD to wait for certain conditions to be met. The following conditions are supported by default:
 
 ```js
-se.wait({ url: '/welcome' }, 2000);
-se.wait({ title: /Selene/ }, 2000);
-se.wait(() => se.find('.foo').find('.bar'), 2000);
-se.wait({ stale: se.find('body') }, 2000);
+fwd.wait({ url: '/welcome' }, 2000);
+fwd.wait({ title: /friendly/ }, 2000);
+fwd.wait(() => fwd.find('.foo').find('.bar'), 2000);
+fwd.wait({ stale: fwd.find('body') }, 2000);
 ```
 
 You can add custom conditions via the [`addCondition()`](#addcondition) method.
@@ -111,11 +111,11 @@ You can add custom conditions via the [`addCondition()`](#addcondition) method.
 
 # API
 
-The top-level [`selene()`](#configuration) function is a factory for [`Selene`](#selene) instances which are thin wrappers around Selenium `WebDriver` objects.
+The top-level [`webdriver()`](#configuration) function is a factory for [`FriendlyWebDriver`](#friendlywebdriver) instances which are thin wrappers around Selenium `WebDriver` objects.
 
-## Selene
+## FriendlyWebDriver
 
-In addition to the [WebDriver API](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html), `Selene` instances provide the following methods:
+In addition to the [WebDriver API](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html), `FriendlyWebDriver` instances provide the following methods:
 
 ### goto
 
@@ -124,7 +124,7 @@ Returns `this` for chaining.
 
 ### find
 
-Returns a [SeElementPromise](#seelementpromise) for the first matching DOM element.
+Returns a [FwdElementPromise](#FwdElementpromise) for the first matching DOM element.
 
 `find(locator, [filter], [timeout])`
   * `locator`: The [locator](#locators) to use
@@ -162,21 +162,21 @@ Reloads the page until the given condition is met. Takes the same arguments as `
 
 ### fill
 
-Fills multiple input elements at once. The input elements are looked up using a CSS attribute selector. By default Selene expects each element to have a unique `name` attribute. Optionally a custom attribute can be specified. Returns `this` for chaining.
+Fills multiple input elements at once. The input elements are looked up using a CSS attribute selector. By default FWD expects each element to have a unique `name` attribute. Optionally a custom attribute can be specified. Returns `this` for chaining.
 
 `fill([attribute], values)`
   * `attribute`: Attribute name to use in CSS selectors. Defaults to `name`
   * `values`: The values to be filled in
 
 ```js
-se.fill({
+fwd.fill({
   user: 'John',
   email: 'john@example.com'
 })
 
 // shortcut for:
-se.find('[name="user"]').type('John');
-se.find('[name="email"]').type('john@example.com');
+fwd.find('[name="user"]').type('John');
+fwd.find('[name="email"]').type('john@example.com');
 ```
 
 ### getLogEntries
@@ -188,7 +188,7 @@ Fetches available log entries for a given type since the last call to this metho
 
 ```js
 // activate logging
-var se = selene({
+var fwd = webdriver({
   logging: {
     browser: 'severe',
     driver: 'debug'
@@ -196,7 +196,7 @@ var se = selene({
 });
 
 // fetch browser logs
-se.getLogEntries('browser').then(entries => {
+fwd.getLogEntries('browser').then(entries => {
   console.log(entries.map(e => e.message));
 });
 ```
@@ -212,7 +212,7 @@ Registers a custom [locator](#locators).
 The following example adds a locator that uses jQuery to locate elements:
 
 ```js
-se.addLocator(query => {
+fwd.addLocator(query => {
   // Handle only objects that have a `jQuery` property
   if (typeof query === 'object' && 'jQuery' in query) {
     const selector = query.$;
@@ -230,7 +230,7 @@ se.addLocator(query => {
 });
 
 // Use it like this:
-se.find({jQuery: 'div:animated' });
+fwd.find({jQuery: 'div:animated' });
 ```
 
 ### addFilter
@@ -244,7 +244,7 @@ Registers a custom [filter](#filter).
 The following example adds a _min-width_ filter:
 
 ```js
-se.addFilter(filter => {
+fwd.addFilter(filter => {
   if (filter.minWidth) {
     return {
       description: `width >= ${filter.minWidth}px`,
@@ -256,7 +256,7 @@ se.addFilter(filter => {
 });
 
 // Use it like this:
-se.find('img', { minWidth: 200 });
+fwd.find('img', { minWidth: 200 });
 ```
 
 ### addCondition
@@ -264,19 +264,19 @@ se.find('img', { minWidth: 200 });
 Registers a custom [condition](#conditions).
 
 `addCondition(fn)`
-  * `fn` A function that takes an arbitrary `until` object as argument and returns a `webdriver.until.Contition` if it wants to handle the given object.
+  * `fn` A function that takes an arbitrary `until` object as argument and returns a `webdriver.Contition` if it wants to handle the given object.
 
 ### use
 
 Registers a plugin.
 
 `use(plugin)`
-* `plugin` A function that is invoked with a `Selene` instance so it can call [`addLocator()`](#addlocator), [`addFilter()`](#addfilter) or [`addCondition()`](#addcondition).
+* `plugin` A function that is invoked with a `FriendlyWebDriver` instance so it can call [`addLocator()`](#addlocator), [`addFilter()`](#addfilter) or [`addCondition()`](#addcondition).
 
 
-## SeElement
+## FwdElement
 
-`SeElement` extends Selenium's [WebElement](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html) and adds the following methods:
+`FwdElement` extends Selenium's [WebElement](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html) and adds the following methods:
 
 ### attr
 
@@ -288,20 +288,20 @@ Registers a plugin.
 
 ### find
 
-`find(locator, [filter], [timeout])` – Scoped version of [se.find()](#find) that only takes the element's descendants into account.
+`find(locator, [filter], [timeout])` – Scoped version of [fwd.find()](#find) that only takes the element's descendants into account.
 
 ### findAll
 
-`findAll(selector, [filter], [timeout])` – Scoped version of [se.findAll()](#findAll) that only takes the element's descendants into account.
+`findAll(selector, [filter], [timeout])` – Scoped version of [fwd.findAll()](#findAll) that only takes the element's descendants into account.
 
 ### fill
 
-`fill([attribute], values)` – Scoped version of [se.fill()](#fill) that only takes the element's descendants into account.
+`fill([attribute], values)` – Scoped version of [fwd.fill()](#fill) that only takes the element's descendants into account.
 
 
 ### parent
 
-`parent()` – Returns a `SeElementPromise` for the element's parent node.
+`parent()` – Returns a `FwdElementPromise` for the element's parent node.
 
 ### type
 
@@ -325,11 +325,11 @@ el.press('h e l l o SPACE w o r l d'); // hello world
 
 `dragDrop(target)` – Drags the element to the given target.
 
-The target can either be a `SeElement` or `{x: number, y: number}` or a promise for either of both.
+The target can either be a `FwdElement` or `{x: number, y: number}` or a promise for either of both.
 
-## SeElementPromise
+## FwdElementPromise
 
-`SeElementPromise` mixes both [`SeElement`](#seelement) and an [A+ compatible](https://promisesaplus.com/) promise interface. This allows calls to the `SeElement` API before the underlying element promise has been fulfilled.
+`FwdElementPromise` mixes both [`FwdElement`](#FwdElement) and an [A+ compatible](https://promisesaplus.com/) promise interface. This allows calls to the `FwdElement` API before the underlying element promise has been fulfilled.
 
 ## Configuration
 
@@ -339,7 +339,7 @@ The target can either be a `SeElement` or `{x: number, y: number}` or a promise 
 | auth   | Credentials for HTTP basic authentication. |
 
 ```js
-var se = selene({
+var fwd = webdriver({
   base: 'https://www.example.com/',
   auth: {
     user: 'user',
@@ -347,7 +347,7 @@ var se = selene({
   }
 });
 
-se.goto('/').click('a[href="/welcome"]').wait({ url: '/welcome' });
+fwd.goto('/').click('a[href="/welcome"]').wait({ url: '/welcome' });
 ```
 
 
@@ -371,16 +371,16 @@ Additionally you can provide browser-specific options under the keys
 [`chrome`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setChromeOptions), [`opera`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setOperaOptions), [`safari`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setSafariOptions), [`ie`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setIeOptions), [`edge`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setEdgeOptions) or [`firefox`](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html#setFirefoxOptions).
 
 __NOTE__
-> All objects created by Selene inherit from their official counterparts, hence checks like `se instanceof webdriver.WebDriver` will still pass and you can use Selene as drop-in replacement inside your existing code.
+> All objects created by FWD inherit from their official counterparts, hence checks like `se instanceof webdriver.WebDriver` will still pass and you can use FWD as drop-in replacement inside your existing code.
 
 
 # Test runners
 
-Selene does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses [Mocha](https://mochajs.org/) and [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver).
+FWD does not come with its own test runner nor is it bound to a specific assertion framework. You can use whatever tool you want for that. The following example uses [Mocha](https://mochajs.org/) and [unexpected-webdriver](https://www.npmjs.com/package/unexpected-webdriver).
 
 ```js
-var selene = require('selene');
-var expect = require('unexpected');
+var webdriver = require('friendly-webdriver');
+var expect = require('unexpected').clone();
 
 expect.use(require('unexpected-webdriver')());
 
@@ -388,18 +388,23 @@ describe('Google', function () {
 
   this.timeout(60000); // don't timeout too quickly
 
-  it('should go to the selene npm page', function () {
-    var se = selene();
-    se.goto('https://www.google.com/');
-    se.fill({ q: 'selene npm' });
-    se.click('[jsaction=sf.lck]');
-    se.wait({ url: 'https://www.npmjs.com/package/selene' });
+  it('should go to the FWD npm page', function () {
+    var se = FWD();
+    fwd.goto('https://www.google.com/');
+    fwd.fill({ q: 'friendly-webdriver npm' });
+    fwd.click('[jsaction=sf.lck]');
+    fwd.wait({ url: 'https://www.npmjs.com/package/friendly-webdriver' });
 
-    var name = se.find('.package-name');
-    return expect(name, 'to contain text', 'selene');
+    var name = fwd.find('.package-name');
+    return expect(name, 'to contain text', 'FWD');
   });
 });
 ```
+
+# History
+
+This project was originally released under the name `Selene` and was later renamed to avoid confusion with the [Selene](https://github.com/yashaka/selene) Python library and its [Jselene](https://github.com/yashaka/jselene) counterpart.
+
 # License
 
 MIT

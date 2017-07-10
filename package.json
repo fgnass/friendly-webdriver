@@ -1,10 +1,10 @@
 {
-  "name": "selene",
-  "version": "1.1.1",
+  "name": "friendly-webdriver",
+  "version": "2.0.0",
   "description": "A friendly selenium-webdriver API",
-  "repository": "LiquidLabsGmbH/selene",
+  "repository": "fgnass/friendly-webdriver",
   "authors": [
-    "Felix Gnass <f.gnass@liquidlabs.de> (https://github.com/fgnass)",
+    "Felix Gnass <fgnass@gmail.com> (https://github.com/fgnass)",
     "Sebastian Warmbrunn (https://github.com/sebashwa)",
     "Christopher Flöß (https://github.com/flooose)"
   ],
@@ -20,17 +20,16 @@
     "webdriver",
     "e2e"
   ],
-  "main": "index.js",
+  "main": "lib",
   "dependencies": {
     "debug": "^2.2.0",
     "object-assign": "^4.0.1",
-    "selenium-webdriver": "^2.52.0"
+    "selenium-webdriver": "^3.4.0"
   },
   "devDependencies": {
     "doctoc": "^1.0.0",
-    "eslint": "^2.2.0",
-    "eslint-config-airbnb": "^6.0.2",
-    "mocha": "^2.4.5",
+    "eslint": "^4.2.0",
+    "mocha": "^3.4.2",
     "unexpected": "^10.11.0"
   }
 }
